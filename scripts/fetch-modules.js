@@ -46,21 +46,49 @@ class ModuleFetcher {
   async searchGitHubRepositories() {
     console.log('Searching GitHub for Silverstripe modules...');
 
+    // Balanced search strategy prioritizing recent activity and organizations from composer.json
     const searchQueries = [
+      // Priority 1: Recent activity across all Silverstripe repos (most important)
+      'silverstripe language:PHP pushed:>2024-01-01',
+      'silverstripe language:PHP updated:>2024-06-01',
+      
+      // Priority 2: Main organizations with recent activity  
+      'user:silverstripe language:PHP pushed:>2023-01-01',
+      
+      // Priority 3: Topic-based searches (well-categorized modules)
       'topic:silverstripe-vendormodule language:PHP',
-      'topic:silverstripe-module language:PHP',
-      'silverstripe- in:name language:PHP',
-      'silverstripe language:PHP'
+      'topic:silverstripe-module language:PHP', 
+      'topic:silverstripe-theme language:PHP',
+      
+      // Priority 4: Organizations from your composer.json + other active contributors
+      'user:jonom silverstripe language:PHP',
+      'user:kinglozzer silverstripe language:PHP', 
+      'user:nswdpc silverstripe language:PHP',
+      'user:silverstripe-terraformers silverstripe language:PHP',
+      'user:wilr silverstripe language:PHP',
+      'user:sunnysideup silverstripe language:PHP',
+      'user:dnadesign silverstripe language:PHP',
+      'user:tractorcow silverstripe language:PHP',
+      'user:firesphere silverstripe language:PHP',
+      'user:bigfork silverstripe language:PHP',
+      'user:lekoala silverstripe language:PHP',
+      'user:axllent silverstripe language:PHP',
+      
+      // Priority 5: Content-based searches for packages that might not be properly tagged
+      'silverstripe in:name language:PHP pushed:>2023-01-01',
+      '"silverstripe/framework" in:file filename:composer.json pushed:>2023-01-01',
+      '"silverstripe/cms" in:file filename:composer.json pushed:>2023-01-01'
     ];
 
     const foundRepos = new Set();
     const modules = [];
 
     for (const query of searchQueries) {
-      if (modules.length >= MAX_MODULES) break;
+      if (modules.length >= MAX_MODULES * 3) break; // Get more than we need for better diversity
 
       try {
-        const url = `${GITHUB_API_BASE}/search/repositories?q=${encodeURIComponent(query)}&sort=created&order=desc&per_page=50`;
+        // Sort by updated (recently maintained) rather than created (first published)
+        const url = `${GITHUB_API_BASE}/search/repositories?q=${encodeURIComponent(query)}&sort=updated&order=desc&per_page=50`;
         const response = await this.fetchWithRetry(url);
         const data = await response.json();
 

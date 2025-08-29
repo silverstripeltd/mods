@@ -20,59 +20,457 @@
 
     <main class="main-content">
         <div class="container">
-            <div class="loading-state" id="loading">
-                <div class="loading-spinner"></div>
-                <p>Loading modules...</p>
-            </div>
-
-            <div class="error-state" id="error" style="display: none;">
-                <p>❌ Failed to load modules. Please try again later.</p>
-            </div>
-
-            <div class="table-container" id="table-container" style="display: none;">
+            <div class="table-container">
                 <div class="table-wrapper">
-                    <table class="modules-table" id="modules-table">
+                    <table class="modules-table">
                         <caption class="visually-hidden">
                             Silverstripe Mods - Latest modules sorted by publication date
                         </caption>
                         <thead>
                             <tr>
-                                <th scope="col" class="sortable" data-sort="name">
-                                    <button type="button" class="sort-button">
-                                        Module Name
-                                        <span class="sort-indicator" aria-hidden="true"></span>
-                                    </button>
+                                <th scope="col">
+                                    Module Name
                                 </th>
-                                <th scope="col" class="sortable" data-sort="description">
-                                    <button type="button" class="sort-button">
-                                        Description
-                                        <span class="sort-indicator" aria-hidden="true"></span>
-                                    </button>
+                                <th scope="col">
+                                    Description
                                 </th>
-                                <th scope="col" class="sortable" data-sort="version">
-                                    <button type="button" class="sort-button">
-                                        Version
-                                        <span class="sort-indicator" aria-hidden="true"></span>
-                                    </button>
+                                <th scope="col">
+                                    Version
                                 </th>
-                                <th scope="col" class="sortable" data-sort="published">
-                                    <button type="button" class="sort-button">
-                                        Released
-                                        <span class="sort-indicator" aria-hidden="true"></span>
-                                    </button>
+                                <th scope="col">
+                                    Released
                                 </th>
-                                <th scope="col">Repository</th>
                             </tr>
                         </thead>
-                        <tbody id="modules-tbody">
-                            <!-- Modules will be populated here -->
+                        <tbody>
+                            
+        <tr class="module-row" onclick="window.open('https://github.com/innis-maggiore/silverstripe-userforms-submission-filter', '_blank')" 
+            role="button" 
+            tabindex="0" 
+            aria-label="View innis-maggiore/silverstripe-userforms-submission-filter repository on GitHub"
+            onkeydown="if(event.key === 'Enter' || event.key === ' ') { event.preventDefault(); window.open('https://github.com/innis-maggiore/silverstripe-userforms-submission-filter', '_blank'); }">
+          <td>
+            <div class="module-name">
+        <span class="module-name-vendor">innis-maggiore</span>
+        <span class="module-name-package">/silverstripe-userforms-submission-filter</span>
+      </div>
+          </td>
+          <td>
+            <div class="module-description">Silverstripe UserForms Filter module allows developers to filter FormSubmissionFields by a list of filter keys after form submission and in turn changes email recipients and subject. It also adds a new Hidden IpFormField that can be added to UDF fields list for easier IP blocking</div>
+          </td>
+          <td>
+            <span class="version-badge">5.1.1</span>
+          </td>
+          <td>
+            <div class="module-date">29/08/2025</div>
+          </td>
+        </tr>
+        <tr class="module-row" onclick="window.open('https://github.com/nswdpc/silverstripe-elemental-feature-video', '_blank')" 
+            role="button" 
+            tabindex="0" 
+            aria-label="View nswdpc/silverstripe-elemental-feature-video repository on GitHub"
+            onkeydown="if(event.key === 'Enter' || event.key === ' ') { event.preventDefault(); window.open('https://github.com/nswdpc/silverstripe-elemental-feature-video', '_blank'); }">
+          <td>
+            <div class="module-name">
+        <span class="module-name-vendor">nswdpc</span>
+        <span class="module-name-package">/silverstripe-elemental-feature-video</span>
+      </div>
+          </td>
+          <td>
+            <div class="module-description">Feature video element Silverstripe</div>
+          </td>
+          <td>
+            <span class="version-badge">v1.1.1</span>
+          </td>
+          <td>
+            <div class="module-date">28/08/2025</div>
+          </td>
+        </tr>
+        <tr class="module-row" onclick="window.open('https://github.com/silverstripe/silverstripe-linkfield', '_blank')" 
+            role="button" 
+            tabindex="0" 
+            aria-label="View silverstripe/linkfield repository on GitHub"
+            onkeydown="if(event.key === 'Enter' || event.key === ' ') { event.preventDefault(); window.open('https://github.com/silverstripe/silverstripe-linkfield', '_blank'); }">
+          <td>
+            <div class="module-name">
+        <span class="module-name-vendor">silverstripe</span>
+        <span class="module-name-package">/linkfield</span>
+      </div>
+          </td>
+          <td>
+            <div class="module-description">Link management for Silverstripe CMS</div>
+          </td>
+          <td>
+            <span class="version-badge">5.0.4</span>
+          </td>
+          <td>
+            <div class="module-date">25/08/2025</div>
+          </td>
+        </tr>
+        <tr class="module-row" onclick="window.open('https://github.com/silverstripe/silverstripe-gridfield-bulk-editing-tools', '_blank')" 
+            role="button" 
+            tabindex="0" 
+            aria-label="View colymba/gridfield-bulk-editing-tools repository on GitHub"
+            onkeydown="if(event.key === 'Enter' || event.key === ' ') { event.preventDefault(); window.open('https://github.com/silverstripe/silverstripe-gridfield-bulk-editing-tools', '_blank'); }">
+          <td>
+            <div class="module-name">
+        <span class="module-name-vendor">colymba</span>
+        <span class="module-name-package">/gridfield-bulk-editing-tools</span>
+      </div>
+          </td>
+          <td>
+            <div class="module-description">Silverstripe CMS GridField component to upload images/files and edit records in bulk</div>
+          </td>
+          <td>
+            <span class="version-badge">5.0.2</span>
+          </td>
+          <td>
+            <div class="module-date">25/08/2025</div>
+          </td>
+        </tr>
+        <tr class="module-row" onclick="window.open('https://github.com/silverstripe/silverstripe-gridfieldextensions', '_blank')" 
+            role="button" 
+            tabindex="0" 
+            aria-label="View symbiote/silverstripe-gridfieldextensions repository on GitHub"
+            onkeydown="if(event.key === 'Enter' || event.key === ' ') { event.preventDefault(); window.open('https://github.com/silverstripe/silverstripe-gridfieldextensions', '_blank'); }">
+          <td>
+            <div class="module-name">
+        <span class="module-name-vendor">symbiote</span>
+        <span class="module-name-package">/silverstripe-gridfieldextensions</span>
+      </div>
+          </td>
+          <td>
+            <div class="module-description">A collection of useful grid field components</div>
+          </td>
+          <td>
+            <span class="version-badge">5.0.3</span>
+          </td>
+          <td>
+            <div class="module-date">25/08/2025</div>
+          </td>
+        </tr>
+        <tr class="module-row" onclick="window.open('https://github.com/silverstripe/silverstripe-advancedworkflow', '_blank')" 
+            role="button" 
+            tabindex="0" 
+            aria-label="View symbiote/silverstripe-advancedworkflow repository on GitHub"
+            onkeydown="if(event.key === 'Enter' || event.key === ' ') { event.preventDefault(); window.open('https://github.com/silverstripe/silverstripe-advancedworkflow', '_blank'); }">
+          <td>
+            <div class="module-name">
+        <span class="module-name-vendor">symbiote</span>
+        <span class="module-name-package">/silverstripe-advancedworkflow</span>
+      </div>
+          </td>
+          <td>
+            <div class="module-description">Adds configurable workflow support to the CMS, with a GUI for creating custom workflow definitions.</div>
+          </td>
+          <td>
+            <span class="version-badge">7.0.2</span>
+          </td>
+          <td>
+            <div class="module-date">25/08/2025</div>
+          </td>
+        </tr>
+        <tr class="module-row" onclick="window.open('https://github.com/silverstripe/silverstripe-elemental', '_blank')" 
+            role="button" 
+            tabindex="0" 
+            aria-label="View dnadesign/silverstripe-elemental repository on GitHub"
+            onkeydown="if(event.key === 'Enter' || event.key === ' ') { event.preventDefault(); window.open('https://github.com/silverstripe/silverstripe-elemental', '_blank'); }">
+          <td>
+            <div class="module-name">
+        <span class="module-name-vendor">dnadesign</span>
+        <span class="module-name-package">/silverstripe-elemental</span>
+      </div>
+          </td>
+          <td>
+            <div class="module-description">Elemental pagetype and collection of Elements</div>
+          </td>
+          <td>
+            <span class="version-badge">6.0.3</span>
+          </td>
+          <td>
+            <div class="module-date">25/08/2025</div>
+          </td>
+        </tr>
+        <tr class="module-row" onclick="window.open('https://github.com/silverstripe/silverstripe-tagfield', '_blank')" 
+            role="button" 
+            tabindex="0" 
+            aria-label="View silverstripe/tagfield repository on GitHub"
+            onkeydown="if(event.key === 'Enter' || event.key === ' ') { event.preventDefault(); window.open('https://github.com/silverstripe/silverstripe-tagfield', '_blank'); }">
+          <td>
+            <div class="module-name">
+        <span class="module-name-vendor">silverstripe</span>
+        <span class="module-name-package">/tagfield</span>
+      </div>
+          </td>
+          <td>
+            <div class="module-description">Tag field for SilverStripe</div>
+          </td>
+          <td>
+            <span class="version-badge">4.0.2</span>
+          </td>
+          <td>
+            <div class="module-date">25/08/2025</div>
+          </td>
+        </tr>
+        <tr class="module-row" onclick="window.open('https://github.com/silverstripe/silverstripe-sharedraftcontent', '_blank')" 
+            role="button" 
+            tabindex="0" 
+            aria-label="View silverstripe/sharedraftcontent repository on GitHub"
+            onkeydown="if(event.key === 'Enter' || event.key === ' ') { event.preventDefault(); window.open('https://github.com/silverstripe/silverstripe-sharedraftcontent', '_blank'); }">
+          <td>
+            <div class="module-name">
+        <span class="module-name-vendor">silverstripe</span>
+        <span class="module-name-package">/sharedraftcontent</span>
+      </div>
+          </td>
+          <td>
+            <div class="module-description">Share draft page content with non-CMS users</div>
+          </td>
+          <td>
+            <span class="version-badge">4.0.2</span>
+          </td>
+          <td>
+            <div class="module-date">25/08/2025</div>
+          </td>
+        </tr>
+        <tr class="module-row" onclick="window.open('https://github.com/silverstripe/silverstripe-mfa', '_blank')" 
+            role="button" 
+            tabindex="0" 
+            aria-label="View silverstripe/mfa repository on GitHub"
+            onkeydown="if(event.key === 'Enter' || event.key === ' ') { event.preventDefault(); window.open('https://github.com/silverstripe/silverstripe-mfa', '_blank'); }">
+          <td>
+            <div class="module-name">
+        <span class="module-name-vendor">silverstripe</span>
+        <span class="module-name-package">/mfa</span>
+      </div>
+          </td>
+          <td>
+            <div class="module-description">Enable multi-factor authentication with fallback codes</div>
+          </td>
+          <td>
+            <span class="version-badge">6.0.2</span>
+          </td>
+          <td>
+            <div class="module-date">25/08/2025</div>
+          </td>
+        </tr>
+        <tr class="module-row" onclick="window.open('https://github.com/silverstripe/silverstripe-session-manager', '_blank')" 
+            role="button" 
+            tabindex="0" 
+            aria-label="View silverstripe/session-manager repository on GitHub"
+            onkeydown="if(event.key === 'Enter' || event.key === ' ') { event.preventDefault(); window.open('https://github.com/silverstripe/silverstripe-session-manager', '_blank'); }">
+          <td>
+            <div class="module-name">
+        <span class="module-name-vendor">silverstripe</span>
+        <span class="module-name-package">/session-manager</span>
+      </div>
+          </td>
+          <td>
+            <div class="module-description">Allow users to manage and revoke access to multiple login sessions across devices.</div>
+          </td>
+          <td>
+            <span class="version-badge">3.0.2</span>
+          </td>
+          <td>
+            <div class="module-date">25/08/2025</div>
+          </td>
+        </tr>
+        <tr class="module-row" onclick="window.open('https://github.com/silverstripe/silverstripe-reports', '_blank')" 
+            role="button" 
+            tabindex="0" 
+            aria-label="View silverstripe/reports repository on GitHub"
+            onkeydown="if(event.key === 'Enter' || event.key === ' ') { event.preventDefault(); window.open('https://github.com/silverstripe/silverstripe-reports', '_blank'); }">
+          <td>
+            <div class="module-name">
+        <span class="module-name-vendor">silverstripe</span>
+        <span class="module-name-package">/reports</span>
+      </div>
+          </td>
+          <td>
+            <div class="module-description">Reports module for SilverStripe CMS</div>
+          </td>
+          <td>
+            <span class="version-badge">6.0.1</span>
+          </td>
+          <td>
+            <div class="module-date">25/08/2025</div>
+          </td>
+        </tr>
+        <tr class="module-row" onclick="window.open('https://github.com/silverstripe/silverstripe-documentconverter', '_blank')" 
+            role="button" 
+            tabindex="0" 
+            aria-label="View silverstripe/documentconverter repository on GitHub"
+            onkeydown="if(event.key === 'Enter' || event.key === ' ') { event.preventDefault(); window.open('https://github.com/silverstripe/silverstripe-documentconverter', '_blank'); }">
+          <td>
+            <div class="module-name">
+        <span class="module-name-vendor">silverstripe</span>
+        <span class="module-name-package">/documentconverter</span>
+      </div>
+          </td>
+          <td>
+            <div class="module-description">Imports OpenOffice-compatible files (doc, docx, etc) into SilverStripe pages and content.</div>
+          </td>
+          <td>
+            <span class="version-badge">3.3.1</span>
+          </td>
+          <td>
+            <div class="module-date">19/08/2025</div>
+          </td>
+        </tr>
+        <tr class="module-row" onclick="window.open('https://github.com/sunnysideup/silverstripe-page-favourites-bookmarker', '_blank')" 
+            role="button" 
+            tabindex="0" 
+            aria-label="View sunnysideup/page-favourites-bookmarker repository on GitHub"
+            onkeydown="if(event.key === 'Enter' || event.key === ' ') { event.preventDefault(); window.open('https://github.com/sunnysideup/silverstripe-page-favourites-bookmarker', '_blank'); }">
+          <td>
+            <div class="module-name">
+        <span class="module-name-vendor">sunnysideup</span>
+        <span class="module-name-package">/page-favourites-bookmarker</span>
+      </div>
+          </td>
+          <td>
+            <div class="module-description">Works with an npm package of the same name to allow bookmarking any page on a website and saving them to the user account, if logged-in</div>
+          </td>
+          <td>
+            <span class="version-badge no-version">-</span>
+          </td>
+          <td>
+            <div class="module-date">17/08/2025</div>
+          </td>
+        </tr>
+        <tr class="module-row" onclick="window.open('https://github.com/dnadesign/silverstripe-elemental-virtual', '_blank')" 
+            role="button" 
+            tabindex="0" 
+            aria-label="View dnadesign/silverstripe-elemental-virtual repository on GitHub"
+            onkeydown="if(event.key === 'Enter' || event.key === ' ') { event.preventDefault(); window.open('https://github.com/dnadesign/silverstripe-elemental-virtual', '_blank'); }">
+          <td>
+            <div class="module-name">
+        <span class="module-name-vendor">dnadesign</span>
+        <span class="module-name-package">/silverstripe-elemental-virtual</span>
+      </div>
+          </td>
+          <td>
+            <div class="module-description">Adds ability for Elemental to share content blocks between pages</div>
+          </td>
+          <td>
+            <span class="version-badge">2.2.1</span>
+          </td>
+          <td>
+            <div class="module-date">19/02/2025</div>
+          </td>
+        </tr>
+        <tr class="module-row" onclick="window.open('https://github.com/6fdigital/silverstripe-phone-field', '_blank')" 
+            role="button" 
+            tabindex="0" 
+            aria-label="View 6fdigital/silverstripe-phone-field repository on GitHub"
+            onkeydown="if(event.key === 'Enter' || event.key === ' ') { event.preventDefault(); window.open('https://github.com/6fdigital/silverstripe-phone-field', '_blank'); }">
+          <td>
+            <div class="module-name">
+        <span class="module-name-vendor">6fdigital</span>
+        <span class="module-name-package">/silverstripe-phone-field</span>
+      </div>
+          </td>
+          <td>
+            <div class="module-description">A phone number field for the SilverStripe CMS with validation using libphonenumber</div>
+          </td>
+          <td>
+            <span class="version-badge no-version">-</span>
+          </td>
+          <td>
+            <div class="module-date">17/02/2024</div>
+          </td>
+        </tr>
+        <tr class="module-row" onclick="window.open('https://github.com/restruct/silverstripe-featuredimages', '_blank')" 
+            role="button" 
+            tabindex="0" 
+            aria-label="View restruct/silverstripe-featuredimages repository on GitHub"
+            onkeydown="if(event.key === 'Enter' || event.key === ' ') { event.preventDefault(); window.open('https://github.com/restruct/silverstripe-featuredimages', '_blank'); }">
+          <td>
+            <div class="module-name">
+        <span class="module-name-vendor">restruct</span>
+        <span class="module-name-package">/silverstripe-featuredimages</span>
+      </div>
+          </td>
+          <td>
+            <div class="module-description">Extension to quickly add a (set of) featured image(s) to a pagetype</div>
+          </td>
+          <td>
+            <span class="version-badge">3.1.3</span>
+          </td>
+          <td>
+            <div class="module-date">30/10/2020</div>
+          </td>
+        </tr>
+        <tr class="module-row" onclick="window.open('https://github.com/sunnysideup/silverstripe-simple-template-caching', '_blank')" 
+            role="button" 
+            tabindex="0" 
+            aria-label="View sunnysideup/simple-template-caching repository on GitHub"
+            onkeydown="if(event.key === 'Enter' || event.key === ' ') { event.preventDefault(); window.open('https://github.com/sunnysideup/silverstripe-simple-template-caching', '_blank'); }">
+          <td>
+            <div class="module-name">
+        <span class="module-name-vendor">sunnysideup</span>
+        <span class="module-name-package">/simple-template-caching</span>
+      </div>
+          </td>
+          <td>
+            <div class="module-description">Basic functions for caching content in your SS templates.</div>
+          </td>
+          <td>
+            <span class="version-badge">2.0.0</span>
+          </td>
+          <td>
+            <div class="module-date">30/07/2020</div>
+          </td>
+        </tr>
+        <tr class="module-row" onclick="window.open('https://github.com/sunnysideup/silverstripe-ecommerce', '_blank')" 
+            role="button" 
+            tabindex="0" 
+            aria-label="View sunnysideup/ecommerce repository on GitHub"
+            onkeydown="if(event.key === 'Enter' || event.key === ' ') { event.preventDefault(); window.open('https://github.com/sunnysideup/silverstripe-ecommerce', '_blank'); }">
+          <td>
+            <div class="module-name">
+        <span class="module-name-vendor">sunnysideup</span>
+        <span class="module-name-package">/ecommerce</span>
+      </div>
+          </td>
+          <td>
+            <div class="module-description">Silverstripe E-commerce Application</div>
+          </td>
+          <td>
+            <span class="version-badge">12.0.0</span>
+          </td>
+          <td>
+            <div class="module-date">28/06/2020</div>
+          </td>
+        </tr>
+        <tr class="module-row" onclick="window.open('https://github.com/BiffBangPow/silverstripe-rejb', '_blank')" 
+            role="button" 
+            tabindex="0" 
+            aria-label="View biffbangpow/silverstripe-rejb repository on GitHub"
+            onkeydown="if(event.key === 'Enter' || event.key === ' ') { event.preventDefault(); window.open('https://github.com/BiffBangPow/silverstripe-rejb', '_blank'); }">
+          <td>
+            <div class="module-name">
+        <span class="module-name-vendor">biffbangpow</span>
+        <span class="module-name-package">/silverstripe-rejb</span>
+      </div>
+          </td>
+          <td>
+            <div class="module-description">Silverstripe implementation of the Recruitment Entrepreneur Job Board</div>
+          </td>
+          <td>
+            <span class="version-badge no-version">-</span>
+          </td>
+          <td>
+            <div class="module-date">05/02/2019</div>
+          </td>
+        </tr>
                         </tbody>
                     </table>
                 </div>
 
                 <div class="table-footer">
                     <p class="last-updated">
-                        <small>Last updated: <span id="last-updated">Loading...</span></small>
+                        <small>Last updated: 29 August 2025 at 05:51 pm NZST</small>
                     </p>
                 </div>
             </div>
@@ -90,7 +488,5 @@
             </p>
         </div>
     </footer>
-
-    <script src="app.js"></script>
 </body>
 </html>
