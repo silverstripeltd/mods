@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Silverstripe Mods - Latest 20 Silverstripe modules - automatically updated daily">
+    <meta name="theme-color" content="#0071C4">
+    <title>Silverstripe Mods</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="alternate" type="application/rss+xml" title="Silverstripe Mods RSS Feed" href="./feed.xml">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔌</text></svg>">
+</head>
+<body>
+    <header class="site-header">
+        <div class="container">
+            <h1>Silverstripe Mods</h1>
+            <p class="subtitle">Latest 20 Silverstripe modules with their most recent releases</p>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="container">
+            <div class="loading-state" id="loading">
+                <div class="loading-spinner"></div>
+                <p>Loading modules...</p>
+            </div>
+
+            <div class="error-state" id="error" style="display: none;">
+                <p>❌ Failed to load modules. Please try again later.</p>
+            </div>
+
+            <div class="table-container" id="table-container" style="display: none;">
+                <div class="table-wrapper">
+                    <table class="modules-table" id="modules-table">
+                        <caption class="visually-hidden">
+                            Silverstripe Mods - Latest modules sorted by publication date
+                        </caption>
+                        <thead>
+                            <tr>
+                                <th scope="col" class="sortable" data-sort="name">
+                                    <button type="button" class="sort-button">
+                                        Module Name
+                                        <span class="sort-indicator" aria-hidden="true"></span>
+                                    </button>
+                                </th>
+                                <th scope="col" class="sortable" data-sort="description">
+                                    <button type="button" class="sort-button">
+                                        Description
+                                        <span class="sort-indicator" aria-hidden="true"></span>
+                                    </button>
+                                </th>
+                                <th scope="col" class="sortable" data-sort="version">
+                                    <button type="button" class="sort-button">
+                                        Version
+                                        <span class="sort-indicator" aria-hidden="true"></span>
+                                    </button>
+                                </th>
+                                <th scope="col" class="sortable" data-sort="published">
+                                    <button type="button" class="sort-button">
+                                        Released
+                                        <span class="sort-indicator" aria-hidden="true"></span>
+                                    </button>
+                                </th>
+                                <th scope="col">Repository</th>
+                            </tr>
+                        </thead>
+                        <tbody id="modules-tbody">
+                            <!-- Modules will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="table-footer">
+                    <p class="last-updated">
+                        <small>Last updated: <span id="last-updated">Loading...</span></small>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container">
+            <p>
+                Data sourced from GitHub API and Packagist.
+                <a href="./feed.xml" target="_blank" rel="noopener">RSS Feed</a> |
+                <a href="https://github.com/username/silverstripe-mods" target="_blank" rel="noopener">
+                    View source code
+                </a>
+            </p>
+        </div>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>

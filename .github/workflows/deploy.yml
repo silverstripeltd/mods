@@ -1,0 +1,78 @@
+# filepath: .github/workflows/deploy.yml
+name: Build and Deploy to GitHub Pages
+
+on:
+  # Run daily at 6:00 AM NZST (18:00 UTC)
+  schedule:
+    - cron: '0 18 * * *'
+
+  # Run on push to main branch
+  push:
+    branches: [ main ]
+
+  # Allow manual trigger
+  workflow_dispatch:
+
+# Sets permissions for GitHub Pages deployment
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          # No external dependencies needed for this project
+          echo "No dependencies to install - using native Node.js features"
+
+      - name: Fetch Silverstripe modules data
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Fetching latest Silverstripe modules..."
+          node scripts/fetch-modules.js
+
+      - name: Build site
+        run: |
+          echo "Building site for deployment..."
+          node scripts/build.js
+
+      - name: Verify build output
+        run: |
+          echo "Verifying build output..."
+          ls -la dist/
+          echo "✅ Build verification complete"
+
+      - name: Setup GitHub Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './dist'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

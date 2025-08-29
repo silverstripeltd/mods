@@ -1,0 +1,25 @@
+{
+  "name": "silverstripe-mods",
+  "version": "1.0.0",
+  "description": "Silverstripe Mods - GitHub Pages site showing the latest 20 Silverstripe modules with RSS feed",
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/fetch-modules.js && node scripts/build.js",
+    "dev": "npm run build && npx serve dist",
+    "fetch": "node scripts/fetch-modules.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/username/silverstripe-modules-site.git"
+  },
+  "keywords": [
+    "silverstripe",
+    "modules",
+    "github-pages"
+  ],
+  "author": "",
+  "license": "MIT"
+}
