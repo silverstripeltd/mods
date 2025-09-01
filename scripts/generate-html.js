@@ -16,6 +16,7 @@
 // filepath: scripts/generate-html.js
 import { readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
+import { minify as minifyHTML } from 'html-minifier-terser';
 
 /**
  * Static HTML Generator Class
@@ -114,10 +115,10 @@ class StaticHTMLGenerator {
   }
 
   /**
-   * Generate HTML article element for a single module
-   * Creates interactive, accessible module cards with click handlers
+   * Generate HTML anchor element for a single module
+   * Creates accessible, semantic module links with article content that open in new tabs
    * @param {Object} module - Module object with name, description, url, published, version
-   * @returns {string} Complete HTML article element
+   * @returns {string} Complete HTML anchor element containing article
    */
   generateModuleArticle(module) {
     const moduleName = this.formatModuleName(module.name, module.url);
@@ -126,30 +127,30 @@ class StaticHTMLGenerator {
     const versionBadge = this.createVersionBadge(module.version);
 
     return `
-            <article class="module-item" onclick="window.open('${module.url}', '_blank')"
-                role="button"
-                tabindex="0"
-                aria-label="View ${this.escapeHtml(module.name)} repository on GitHub"
-                onkeydown="if(event.key === 'Enter' || event.key === ' ') { event.preventDefault(); window.open('${module.url}', '_blank'); }">
-              <div class="module-name-section">
-                <div class="module-name">${moduleName}</div>
-              </div>
-              <div class="module-description-section">
-                <div class="module-description">${escapedDescription}</div>
-              </div>
-              <div class="module-version-section">
-                ${versionBadge}
-              </div>
-              <div class="module-date-section">
-                <div class="module-date">${formattedDate}</div>
-              </div>
-            </article>`;
+            <a href="${module.url}" target="_blank" rel="noopener noreferrer" class="module-item"
+                aria-label="View ${this.escapeHtml(module.name)} repository on GitHub">
+              <article class="module-content">
+                <h2 class="visually-hidden">Module: ${this.escapeHtml(module.name)}</h2>
+                <div class="module-name-section">
+                  <div class="module-name">${moduleName}</div>
+                </div>
+                <div class="module-description-section">
+                  <div class="module-description">${escapedDescription}</div>
+                </div>
+                <div class="module-version-section">
+                  ${versionBadge}
+                </div>
+                <div class="module-date-section">
+                  <div class="module-date">${formattedDate}</div>
+                </div>
+              </article>
+            </a>`;
   }
 
   /**
-   * Generate HTML for all module articles
-   * Processes the entire module array and creates article elements
-   * @returns {string} Combined HTML for all module articles
+   * Generate HTML for all module links
+   * Processes the entire module array and creates anchor elements
+   * @returns {string} Combined HTML for all module links
    */
   generateModuleArticles() {
     console.log('Generating module articles...');
@@ -177,24 +178,44 @@ class StaticHTMLGenerator {
 
   /**
    * Generate complete HTML file from template and module data
-   * Reads template, processes placeholders, and writes output file
+   * Reads template, processes placeholders, minifies, and writes output file
    * @param {string} templatePath - Path to HTML template file
    * @param {string} outputPath - Path for generated HTML output
    * @returns {void}
    */
-  generateHTML(templatePath, outputPath) {
+  async generateHTML(templatePath, outputPath) {
     // Read the HTML template
     const template = readFileSync(templatePath, 'utf-8');
 
-    // Generate module articles and metadata
+    // Generate module links and metadata
     const moduleArticles = this.generateModuleArticles();
     const timestamp = this.getCurrentTimestamp();
 
     // Replace placeholders in template with generated content
-    const html = template
+    let html = template
       .replace('{{MODULE_ARTICLES}}', moduleArticles)
       .replace('{{LAST_UPDATED}}', timestamp)
       .replace('{{MODULE_COUNT}}', this.modules.length);
+
+    // Minify the HTML for production
+    try {
+      html = await minifyHTML(html, {
+        removeComments: true,
+        removeRedundantAttributes: true,
+        removeScriptTypeAttributes: true,
+        removeStyleLinkTypeAttributes: true,
+        sortClassName: true,
+        useShortDoctype: true,
+        collapseWhitespace: true,
+        conservativeCollapse: true,
+        preserveLineBreaks: false,
+        minifyCSS: true,
+        minifyJS: true
+      });
+      console.log('✅ HTML minified for production');
+    } catch (error) {
+      console.warn('⚠️  HTML minification failed, using unminified version:', error.message);
+    }
 
     // Write the generated HTML to output file
     writeFileSync(outputPath, html, 'utf-8');
@@ -208,31 +229,33 @@ class StaticHTMLGenerator {
  * @param {Array} modules - Array of module objects
  * @param {string} templatePath - Path to HTML template
  * @param {string} outputPath - Path for output HTML file
- * @returns {void}
+ * @returns {Promise<void>}
  */
-export function generateStaticHTML(modules, templatePath, outputPath) {
+export async function generateStaticHTML(modules, templatePath, outputPath) {
   const generator = new StaticHTMLGenerator(modules);
-  generator.generateHTML(templatePath, outputPath);
+  await generator.generateHTML(templatePath, outputPath);
 }
 
 // Main execution when run directly
 // This allows the script to be both imported and executed standalone
-try {
-  console.log('Starting HTML generation...');
+(async () => {
+  try {
+    console.log('Starting HTML generation...');
 
-  // Read the modules data from JSON file
-  const modulesData = JSON.parse(readFileSync('data/modules.json', 'utf-8'));
-  console.log(`Loaded ${modulesData.length} modules`);
+    // Read the modules data from JSON file
+    const modulesData = JSON.parse(readFileSync('data/modules.json', 'utf-8'));
+    console.log(`Loaded ${modulesData.length} modules`);
 
-  // Generate the static HTML using the loaded data
-  console.log('Creating generator...');
-  generateStaticHTML(
-    modulesData,
-    'site/index-template.html',
-    'site/index.html'
-  );
-} catch (error) {
-  console.error('❌ Error generating HTML:', error.message);
-  console.error('Stack trace:', error.stack);
-  process.exit(1);
-}
+    // Generate the static HTML using the loaded data
+    console.log('Creating generator...');
+    await generateStaticHTML(
+      modulesData,
+      'site/index-template.html',
+      'site/index.html'
+    );
+  } catch (error) {
+    console.error('❌ Error generating HTML:', error.message);
+    console.error('Stack trace:', error.stack);
+    process.exit(1);
+  }
+})();

@@ -15,8 +15,9 @@
  */
 
 // filepath: scripts/build.js
-import { cpSync, mkdirSync, existsSync, rmSync, readFileSync } from 'fs';
+import { cpSync, mkdirSync, existsSync, rmSync, readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
+import { minify as minifyCSS } from 'csso';
 import { generateRSSFeed } from './generate-rss.js';
 import { generateStaticHTML } from './generate-html.js';
 
@@ -49,7 +50,7 @@ function createDist() {
 
 /**
  * Copy static site assets to distribution directory
- * Copies CSS and other assets (excluding templates) to the dist folder
+ * Copies and minifies CSS and other assets to the dist folder
  * @throws {Error} When site directory doesn't exist
  * @returns {void}
  */
@@ -58,18 +59,21 @@ function copySiteAssets() {
     throw new Error(`Site directory '${SITE_DIR}' does not exist`);
   }
 
-  // Copy CSS and other assets, but not the template
-  cpSync(join(SITE_DIR, 'styles.css'), join(DIST_DIR, 'styles.css'));
-  console.log('📋 Copied site assets to dist');
+  // Read, minify and write CSS
+  const cssContent = readFileSync(join(SITE_DIR, 'styles.css'), 'utf-8');
+  const minifiedCSS = minifyCSS(cssContent).css;
+  writeFileSync(join(DIST_DIR, 'styles.css'), minifiedCSS);
+
+  console.log('📋 Copied and minified site assets to dist');
 }
 
 /**
  * Generate static HTML file with embedded module data
  * Creates index.html by processing the template with module data
  * @throws {Error} When modules.json is not found
- * @returns {void}
+ * @returns {Promise<void>}
  */
-function generateStaticHTMLFile() {
+async function generateStaticHTMLFile() {
   const modulesPath = join(DATA_DIR, 'modules.json');
   if (!existsSync(modulesPath)) {
     throw new Error('modules.json not found for HTML generation.');
@@ -79,7 +83,7 @@ function generateStaticHTMLFile() {
   const templatePath = join(SITE_DIR, 'index-template.html');
   const outputPath = join(DIST_DIR, 'index.html');
 
-  generateStaticHTML(modulesData, templatePath, outputPath);
+  await generateStaticHTML(modulesData, templatePath, outputPath);
 }
 
 /**
@@ -127,9 +131,9 @@ function generateRSSFile() {
 /**
  * Main build execution function
  * Orchestrates the entire build process with error handling
- * @returns {void}
+ * @returns {Promise<void>}
  */
-function main() {
+async function main() {
   console.log('Building site for deployment...\n');
 
   try {
@@ -138,7 +142,7 @@ function main() {
     createDist();
     copySiteAssets();
     copyDataFiles();
-    generateStaticHTMLFile();
+    await generateStaticHTMLFile();
     generateRSSFile();
 
     // Success feedback
@@ -146,6 +150,7 @@ function main() {
     console.log(`📦 Site ready in '${DIST_DIR}' directory`);
     console.log('🌐 Static HTML generated with embedded module data');
     console.log('📡 RSS feed available at /feed.xml');
+    console.log('🗜️  CSS and HTML minified for production');
 
   } catch (error) {
     console.error('❌ Build failed:', error.message);

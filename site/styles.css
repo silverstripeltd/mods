@@ -224,18 +224,15 @@ body::before {
     animation: none;
   }
 
-  .module-item,
-  .module-row {
+  .module-item {
     transition: none;
   }
 
-  .module-item:hover,
-  .module-row:hover {
+  .module-item:hover {
     transform: none;
   }
 
-  .module-item:active,
-  .module-row:active {
+  .module-item:active {
     transform: none;
   }
 }
@@ -244,12 +241,14 @@ body::before {
   font-size: 2.5rem;
   font-weight: 700;
   margin-bottom: 0.5rem;
+	text-wrap: pretty;
 }
 
 .subtitle {
   font-size: 1.1rem;
   opacity: 0.9;
   font-weight: 400;
+	text-wrap: pretty;
 }
 
 /* Main content */
@@ -290,6 +289,7 @@ body::before {
   font-weight: 600;
   color: var(--text-dark);
   font-size: 0.95rem;
+	text-wrap: pretty;
 }
 
 /* ==========================================================================
@@ -306,22 +306,32 @@ body::before {
    MODULE ITEM CARDS
    ========================================================================== */
 
-/* Individual module card with grid layout for consistent column alignment */
+/* Individual module card as anchor link containing semantic article */
 .module-item {
-  display: grid;
-  grid-template-columns: 2fr 3fr 100px 120px; /* Fixed widths for proper alignment */
-  gap: 0;
   border-bottom: 1px solid var(--border-light);
-  cursor: pointer;
   transition: var(--transition);
   text-decoration: none;
   color: inherit;
+  display: block;
 }
 
 .module-item:hover {
   background-color: var(--hover-bg);
   transform: translateY(-2px);
   box-shadow: var(--shadow-hover);
+}
+
+/* Semantic article content with grid layout for consistent column alignment */
+.module-content {
+  display: grid;
+  grid-template-columns: 2fr 3fr 100px 120px; /* Fixed widths for proper alignment */
+  gap: 0;
+  cursor: pointer;
+}
+
+/* Ensure visually-hidden headings don't interfere with grid layout */
+.module-content .visually-hidden {
+  grid-column: 1 / -1; /* Span all columns but don't take up space due to absolute positioning */
 }
 
 .module-item:active {
@@ -335,56 +345,12 @@ body::before {
   background-color: var(--hover-bg);
 }
 
-.module-item > div {
+.module-content > div {
   padding: 1rem;
   font-size: 0.95rem;
   line-height: 1.4;
   display: flex;
   align-items: flex-start;
-}
-
-.modules-table thead {
-  background: var(--hover-bg);
-}
-
-.modules-table th {
-  padding: 1rem;
-  text-align: left;
-  font-weight: 600;
-  color: var(--text-dark);
-  border-bottom: 2px solid var(--border-light);
-  font-size: 0.95rem;
-  vertical-align: middle;
-}
-
-.modules-table td {
-  padding: 1rem;
-  border-bottom: 1px solid var(--border-light);
-  vertical-align: middle;
-  font-size: 0.95rem;
-  line-height: 1.4;
-}
-
-/* Clickable rows */
-.module-row {
-  cursor: pointer;
-  transition: var(--transition);
-}
-
-.module-row:hover {
-  background-color: var(--hover-bg);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-hover);
-}
-
-.module-row:active {
-  transform: translateY(-1px);
-  box-shadow: var(--shadow);
-}
-
-.module-row:focus-visible {
-  outline: 2px solid var(--ss-blue);
-  outline-offset: -2px;
 }
 
 /* Module content styling */
@@ -426,6 +392,7 @@ body::before {
   font-weight: 500;
   flex: 1;
   line-height: 1.3;
+	padding-left: 0.3rem;
 }
 
 .module-description {
@@ -435,6 +402,7 @@ body::before {
   font-size: 0.95rem;
   text-align: left;
   align-self: flex-start;
+	text-wrap: pretty;
 }
 
 .module-date {
@@ -491,11 +459,11 @@ body::before {
 
 .site-footer a {
   color: var(--ss-blue);
-  text-decoration: none;
+  text-decoration: underline;
 }
 
 .site-footer a:hover {
-  text-decoration: underline;
+  text-decoration: none;
 }
 
 /* Responsive design */
@@ -510,7 +478,7 @@ body::before {
   }
 
   .modules-header > div,
-  .module-item > div {
+  .module-content > div {
     padding: 0.75rem;
   }
 
@@ -531,7 +499,7 @@ body::before {
   }
 
   .modules-header > div,
-  .module-item > div {
+  .module-content > div {
     padding: 0.5rem;
   }
 
@@ -555,12 +523,7 @@ body::before {
     color: black !important;
   }
 
-  .modules-list {
-    border: 1px solid #000;
-  }
-
-  .modules-header > div,
-  .module-item > div {
+  .modules-container {
     border: 1px solid #000;
   }
 

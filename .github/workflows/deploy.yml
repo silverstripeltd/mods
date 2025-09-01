@@ -44,20 +44,15 @@ jobs:
 
       - name: Install dependencies
         run: |
-          # No external dependencies needed for this project
-          echo "No dependencies to install - using native Node.js features"
+          echo "Installing build dependencies"
+          npm ci
 
-      - name: Fetch Silverstripe modules data
+      - name: Build site
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "Fetching latest Silverstripe modules..."
-          node scripts/fetch-modules.js
-
-      - name: Build site
-        run: |
-          echo "Building site for deployment..."
-          node scripts/build.js
+          echo "Building site for deployment"
+          npm run build
 
       - name: Verify build output
         run: |
