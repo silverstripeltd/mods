@@ -132,16 +132,16 @@ class StaticHTMLGenerator {
               <article class="module-content">
                 <h2 class="visually-hidden">Module: ${this.escapeHtml(module.name)}</h2>
                 <div class="module-name-section">
-                  <div class="module-name">${moduleName}</div>
+                  <div class="module-name"><span class="visually-hidden">Module name: </span>${moduleName}</div>
                 </div>
                 <div class="module-description-section">
-                  <div class="module-description">${escapedDescription}</div>
+                  <div class="module-description"><span class="visually-hidden">Description: </span>${escapedDescription}</div>
                 </div>
                 <div class="module-version-section">
-                  ${versionBadge}
+                  <span class="visually-hidden">Version: </span>${versionBadge}
                 </div>
                 <div class="module-date-section">
-                  <div class="module-date">${formattedDate}</div>
+                  <div class="module-date"><span class="visually-hidden">Released: </span>${formattedDate}</div>
                 </div>
               </article>
             </a>`;
