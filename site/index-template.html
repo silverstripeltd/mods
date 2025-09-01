@@ -1,3 +1,19 @@
+<!--
+  Silverstripe Mods - HTML Template
+  Template file for generating static HTML with module data
+
+  This template uses placeholder syntax ({{PLACEHOLDER}}) for dynamic content:
+  - {{MODULE_ARTICLES}} - Generated HTML for all module cards
+  - {{MODULE_COUNT}} - Total number of modules displayed
+  - {{LAST_UPDATED}} - Timestamp of last data update
+
+  Features:
+  - Semantic HTML5 structure for accessibility
+  - Responsive meta tags for mobile optimization
+  - RSS feed discovery for syndication
+  - Emoji favicon for visual branding
+  - Screen reader friendly aria-labels
+-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,49 +23,46 @@
     <meta name="theme-color" content="#0071C4">
     <title>Silverstripe Mods</title>
     <link rel="stylesheet" href="styles.css">
+    <!-- RSS feed for syndication and automated discovery -->
     <link rel="alternate" type="application/rss+xml" title="Silverstripe Mods RSS Feed" href="./feed.xml">
+    <!-- Emoji favicon for simple visual branding -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔌</text></svg>">
 </head>
 <body>
+    <!-- Site header with animated gradient background -->
     <header class="site-header">
         <div class="container">
             <h1>Silverstripe Mods</h1>
+            <!-- Dynamic module count populated during build -->
             <p class="subtitle">Latest {{MODULE_COUNT}} Silverstripe modules with their most recent releases</p>
         </div>
     </header>
 
+    <!-- Main content area -->
     <main class="main-content">
         <div class="container">
-            <div class="table-container">
-                <div class="table-wrapper">
-                    <table class="modules-table">
-                        <caption class="visually-hidden">
-                            Silverstripe Mods - Latest modules sorted by publication date
-                        </caption>
-                        <thead>
-                            <tr>
-                                <th scope="col">
-                                    Module Name
-                                </th>
-                                <th scope="col">
-                                    Description
-                                </th>
-                                <th scope="col">
-                                    Version
-                                </th>
-                                <th scope="col">
-                                    Released
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {{TABLE_ROWS}}
-                        </tbody>
-                    </table>
+            <div class="modules-container">
+                <div class="modules-wrapper">
+                    <!-- Module listing section with accessibility label -->
+                    <section class="modules-list" aria-label="Silverstripe Mods - Latest modules sorted by publication date">
+                        <!-- Column headers for the module grid -->
+                        <div class="modules-header">
+                            <div class="header-name">Module Name</div>
+                            <div class="header-description">Description</div>
+                            <div class="header-version">Version</div>
+                            <div class="header-released">Released</div>
+                        </div>
+                        <!-- Dynamic module grid populated with generated articles -->
+                        <div class="modules-grid">
+                            {{MODULE_ARTICLES}}
+                        </div>
+                    </section>
                 </div>
 
-                <div class="table-footer">
+                <!-- Footer with timestamp information -->
+                <div class="modules-footer">
                     <p class="last-updated">
+                        <!-- Dynamic timestamp populated during build -->
                         <small>Last updated: {{LAST_UPDATED}}</small>
                     </p>
                 </div>

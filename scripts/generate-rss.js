@@ -1,18 +1,55 @@
+/**
+ * RSS Feed Generator for Silverstripe Modules Site
+ * Creates RSS/XML feeds for module updates and syndication
+ *
+ * This module generates RSS feeds by:
+ * 1. Processing module data into RSS-compliant XML items
+ * 2. Creating proper RSS channel metadata and headers
+ * 3. Formatting descriptions with module information
+ * 4. Generating unique GUIDs for each module entry
+ * 5. Escaping XML content to ensure valid feed structure
+ *
+ * The RSS feed allows users to subscribe to module updates and
+ * enables automated syndication of new Silverstripe modules.
+ *
+ * @requires fs File system operations for writing RSS files
+ */
+
 // filepath: scripts/generate-rss.js
 import { writeFileSync } from 'fs';
 
+/**
+ * RSS Generator Class
+ * Handles the creation of RSS/XML feeds from module data
+ */
 class RSSGenerator {
+  /**
+   * Initialize RSS generator with modules and site configuration
+   * @param {Array} modules - Array of module objects
+   * @param {Object} siteConfig - Site configuration with title, description, URL, email
+   */
   constructor(modules, siteConfig) {
     this.modules = modules;
     this.siteConfig = siteConfig;
   }
 
+  /**
+   * Generate complete RSS feed XML
+   * Limits to most recent 20 modules to keep feed manageable
+   * @returns {string} Complete RSS XML feed content
+   */
   generate() {
+    // Limit to most recent 20 modules for RSS feed performance
     const rssItems = this.modules.slice(0, 20).map(module => this.createRSSItem(module));
     const rss = this.createRSSFeed(rssItems);
     return rss;
   }
 
+  /**
+   * Create complete RSS feed XML structure with channel metadata
+   * @param {Array} items - Array of RSS item XML strings
+   * @returns {string} Complete RSS feed XML document
+   */
   createRSSFeed(items) {
     const now = new Date();
     const buildDate = now.toUTCString();
@@ -42,6 +79,11 @@ ${items.join('')}
 </rss>`;
   }
 
+  /**
+   * Create individual RSS item XML for a single module
+   * @param {Object} module - Module object with name, description, url, published
+   * @returns {string} RSS item XML element
+   */
   createRSSItem(module) {
     const pubDate = new Date(module.published).toUTCString();
     const description = this.createItemDescription(module);
@@ -59,6 +101,12 @@ ${items.join('')}
 `;
   }
 
+  /**
+   * Create detailed item description for RSS feed
+   * Includes module description, publication date, and repository URL
+   * @param {Object} module - Module object
+   * @returns {string} Formatted description text
+   */
   createItemDescription(module) {
     const description = module.description || 'No description available';
     const publishedDate = new Date(module.published).toISOString().split('T')[0];
@@ -69,12 +117,23 @@ Published: ${publishedDate}
 Repository: ${module.url}`;
   }
 
+  /**
+   * Create unique GUID for RSS item
+   * Generates identifier based on module name and publication date
+   * @param {Object} module - Module object
+   * @returns {string} Unique GUID string
+   */
   createGuid(module) {
     // Create a unique identifier based on module name and published date
     const date = new Date(module.published).toISOString().split('T')[0];
     return `silverstripe-mod-${module.name.replace(/[^a-zA-Z0-9]/g, '-')}-${date}`;
   }
 
+  /**
+   * Escape XML special characters to ensure valid XML
+   * @param {string} text - Text to escape
+   * @returns {string} XML-escaped text
+   */
   escapeXml(text) {
     if (!text) return '';
     return text
@@ -86,7 +145,16 @@ Repository: ${module.url}`;
   }
 }
 
+/**
+ * Generate RSS feed from modules data
+ * Main export function for RSS feed generation
+ * @param {Array} modules - Array of module objects
+ * @param {string} outputPath - Path to write RSS XML file
+ * @param {Object} siteConfig - Site configuration object (optional)
+ * @returns {string} Generated RSS XML content
+ */
 export function generateRSSFeed(modules, outputPath, siteConfig = {}) {
+  // Default configuration for RSS feed metadata
   const defaultConfig = {
     title: 'Silverstripe Mods',
     description: 'Latest Silverstripe modules - automatically updated daily',
@@ -94,10 +162,14 @@ export function generateRSSFeed(modules, outputPath, siteConfig = {}) {
     email: 'noreply@example.com'
   };
 
+  // Merge provided config with defaults
   const config = { ...defaultConfig, ...siteConfig };
+
+  // Generate RSS feed
   const generator = new RSSGenerator(modules, config);
   const rssXml = generator.generate();
 
+  // Write RSS feed to file
   writeFileSync(outputPath, rssXml, 'utf-8');
   console.log(`✅ Generated RSS feed with ${modules.length} items: ${outputPath}`);
 

@@ -1,17 +1,39 @@
-/* Silverstripe Mods - Clean and Simple */
+/**
+ * Silverstripe Mods - Stylesheet
+ * Clean, modern design for the Silverstripe modules listing site
+ *
+ * Features:
+ * - Responsive CSS Grid layout for module cards
+ * - Animated conic gradient header with Japanese sun ray inspiration
+ * - Organization avatars with CSS custom properties
+ * - Hover animations with accessibility considerations
+ * - Reduced motion support for accessibility compliance
+ */
 
-/* Reset */
+/* ==========================================================================
+   CSS RESET AND BASE STYLES
+   ========================================================================== */
+
+/* Basic reset for consistent cross-browser rendering */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-/* Root variables */
+/* ==========================================================================
+   CSS CUSTOM PROPERTIES (VARIABLES)
+   ========================================================================== */
+
+/* Color scheme and design tokens for consistent theming */
 :root {
+  /* Silverstripe brand colors */
+  --ss-blue-light: rgb(8% 37% 91%);
   --ss-blue: #005ae1;
   --ss-blue-dark: #004bc9;
   --ss-blue-darker: #003a9e;
+
+  /* UI color palette */
   --hover-bg: #f5f7fa;
   --text-dark: #333;
   --text-muted: #666;
@@ -19,22 +41,32 @@
   --border-light: #e0e0e0;
   --bg-white: #ffffff;
   --bg-light: #f8f9fa;
+
+  /* Effects and spacing */
   --shadow: 0 2px 4px rgba(0,0,0,0.1);
   --shadow-hover: 0 4px 8px rgba(0,0,0,0.15);
   --radius: 8px;
   --transition: all 0.2s ease;
 }
 
-/* Base styles */
+/* ==========================================================================
+   BASE TYPOGRAPHY AND BODY STYLES
+   ========================================================================== */
+
+/* Main body styling with system font stack */
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   line-height: 1.6;
   color: var(--text-dark);
   background-color: var(--bg-light);
-  overscroll-behavior-y: contain;
+  overscroll-behavior-y: contain; /* Prevent overscroll bounce on mobile */
 }
 
-/* Fun overscroll gradient effect */
+/* ==========================================================================
+   OVERSCROLL GRADIENT EFFECT
+   ========================================================================== */
+
+/* Decorative gradient that appears during overscroll on mobile devices */
 body::before {
   content: '';
   position: fixed;
@@ -42,15 +74,19 @@ body::before {
   left: 0;
   right: 0;
   height: 100px;
-  background: linear-gradient(180deg, 
-    var(--ss-blue) 0%, 
-    var(--ss-blue-dark) 50%, 
+  background: linear-gradient(180deg,
+    var(--ss-blue) 0%,
+    var(--ss-blue-dark) 50%,
     var(--ss-blue-darker) 100%);
   z-index: -1;
   opacity: 0.8;
 }
 
-/* Utility classes */
+/* ==========================================================================
+   UTILITY CLASSES
+   ========================================================================== */
+
+/* Screen reader only content - maintains accessibility without visual display */
 .visually-hidden {
   position: absolute !important;
   width: 1px !important;
@@ -63,20 +99,20 @@ body::before {
   border: 0 !important;
 }
 
+/* Main container with responsive max-width and centering */
 .container {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 20px;
 }
 
-/* Header with modern Silverstripe blue gradient */
+/* ==========================================================================
+   SITE HEADER WITH ANIMATED GRADIENT
+   ========================================================================== */
+
+/* Header with modern Silverstripe blue gradient and Japanese sun ray animation */
 .site-header {
-  background: linear-gradient(135deg, 
-    var(--ss-blue) 0%, 
-    var(--ss-blue-dark) 40%, 
-    var(--ss-blue-darker) 100%);
-  background-size: 200% 200%;
-  animation: gradientShift 8s ease infinite;
+  background: var(--ss-blue);
   color: white;
   padding: 2rem 0;
   text-align: center;
@@ -84,11 +120,124 @@ body::before {
   overflow: hidden;
 }
 
-/* Subtle animation for the gradient */
-@keyframes gradientShift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+/* ==========================================================================
+   JAPANESE SUN RAY GRADIENT ANIMATION
+   ========================================================================== */
+
+/* Animated conic gradient background creating rotating sun ray effect */
+.site-header::before {
+  content: '';
+  position: absolute;
+  top: -150vh;
+  left: -150vw;
+  width: 400vw;
+  height: 400vh;
+  background: conic-gradient(
+    from 0deg at 37.5% 62.5%,
+    var(--ss-blue) 0%, var(--ss-blue) 1%,
+    var(--ss-blue-light) 1%, var(--ss-blue-light) 2.5%,
+    var(--ss-blue) 2.5%, var(--ss-blue) 3.5%,
+    var(--ss-blue-light) 3.5%, var(--ss-blue-light) 5.5%,
+    var(--ss-blue) 5.5%, var(--ss-blue) 6.5%,
+    var(--ss-blue-light) 6.5%, var(--ss-blue-light) 8%,
+    var(--ss-blue) 8%, var(--ss-blue) 9%,
+    var(--ss-blue-light) 9%, var(--ss-blue-light) 11%,
+    var(--ss-blue) 11%, var(--ss-blue) 12%,
+    var(--ss-blue-light) 12%, var(--ss-blue-light) 14.5%,
+    var(--ss-blue) 14.5%, var(--ss-blue) 15.5%,
+    var(--ss-blue-light) 15.5%, var(--ss-blue-light) 17%,
+    var(--ss-blue) 17%, var(--ss-blue) 18%,
+    var(--ss-blue-light) 18%, var(--ss-blue-light) 20.5%,
+    var(--ss-blue) 20.5%, var(--ss-blue) 21.5%,
+    var(--ss-blue-light) 21.5%, var(--ss-blue-light) 23%,
+    var(--ss-blue) 23%, var(--ss-blue) 24%,
+    var(--ss-blue-light) 24%, var(--ss-blue-light) 26.5%,
+    var(--ss-blue) 26.5%, var(--ss-blue) 27.5%,
+    var(--ss-blue-light) 27.5%, var(--ss-blue-light) 29%,
+    var(--ss-blue) 29%, var(--ss-blue) 30%,
+    var(--ss-blue-light) 30%, var(--ss-blue-light) 32.5%,
+    var(--ss-blue) 32.5%, var(--ss-blue) 33.5%,
+    var(--ss-blue-light) 33.5%, var(--ss-blue-light) 35%,
+    var(--ss-blue) 35%, var(--ss-blue) 36%,
+    var(--ss-blue-light) 36%, var(--ss-blue-light) 38.5%,
+    var(--ss-blue) 38.5%, var(--ss-blue) 39.5%,
+    var(--ss-blue-light) 39.5%, var(--ss-blue-light) 41%,
+    var(--ss-blue) 41%, var(--ss-blue) 42%,
+    var(--ss-blue-light) 42%, var(--ss-blue-light) 44.5%,
+    var(--ss-blue) 44.5%, var(--ss-blue) 45.5%,
+    var(--ss-blue-light) 45.5%, var(--ss-blue-light) 47%,
+    var(--ss-blue) 47%, var(--ss-blue) 48%,
+    var(--ss-blue-light) 48%, var(--ss-blue-light) 50.5%,
+    var(--ss-blue) 50.5%, var(--ss-blue) 51.5%,
+    var(--ss-blue-light) 51.5%, var(--ss-blue-light) 53%,
+    var(--ss-blue) 53%, var(--ss-blue) 54%,
+    var(--ss-blue-light) 54%, var(--ss-blue-light) 56.5%,
+    var(--ss-blue) 56.5%, var(--ss-blue) 57.5%,
+    var(--ss-blue-light) 57.5%, var(--ss-blue-light) 59%,
+    var(--ss-blue) 59%, var(--ss-blue) 60%,
+    var(--ss-blue-light) 60%, var(--ss-blue-light) 62.5%,
+    var(--ss-blue) 62.5%, var(--ss-blue) 63.5%,
+    var(--ss-blue-light) 63.5%, var(--ss-blue-light) 65%,
+    var(--ss-blue) 65%, var(--ss-blue) 66%,
+    var(--ss-blue-light) 66%, var(--ss-blue-light) 68.5%,
+    var(--ss-blue) 68.5%, var(--ss-blue) 69.5%,
+    var(--ss-blue-light) 69.5%, var(--ss-blue-light) 71%,
+    var(--ss-blue) 71%, var(--ss-blue) 72%,
+    var(--ss-blue-light) 72%, var(--ss-blue-light) 74.5%,
+    var(--ss-blue) 74.5%, var(--ss-blue) 75.5%,
+    var(--ss-blue-light) 75.5%, var(--ss-blue-light) 77%,
+    var(--ss-blue) 77%, var(--ss-blue) 78%,
+    var(--ss-blue-light) 78%, var(--ss-blue-light) 80.5%,
+    var(--ss-blue) 80.5%, var(--ss-blue) 81.5%,
+    var(--ss-blue-light) 81.5%, var(--ss-blue-light) 83%,
+    var(--ss-blue) 83%, var(--ss-blue) 84%,
+    var(--ss-blue-light) 84%, var(--ss-blue-light) 86.5%,
+    var(--ss-blue) 86.5%, var(--ss-blue) 87.5%,
+    var(--ss-blue-light) 87.5%, var(--ss-blue-light) 89%,
+    var(--ss-blue) 89%, var(--ss-blue) 90%,
+    var(--ss-blue-light) 90%, var(--ss-blue-light) 92.5%,
+    var(--ss-blue) 92.5%, var(--ss-blue) 93.5%,
+    var(--ss-blue-light) 93.5%, var(--ss-blue-light) 95%,
+    var(--ss-blue) 95%, var(--ss-blue) 96%,
+    var(--ss-blue-light) 96%, var(--ss-blue-light) 98.5%,
+    var(--ss-blue) 98.5%, var(--ss-blue) 100%
+  );
+  transform-origin: 37.5% 62.5%;
+  animation: rotateGradient 1024s linear infinite;
+  z-index: 0;
+}
+
+.site-header > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Rotation animation for the conic gradient */
+@keyframes rotateGradient {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Respect user's motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .site-header::before {
+    animation: none;
+  }
+
+  .module-item,
+  .module-row {
+    transition: none;
+  }
+
+  .module-item:hover,
+  .module-row:hover {
+    transform: none;
+  }
+
+  .module-item:active,
+  .module-row:active {
+    transform: none;
+  }
 }
 
 .site-header h1 {
@@ -108,8 +257,8 @@ body::before {
   padding: 3rem 0;
 }
 
-/* Table container */
-.table-container {
+/* Modules container */
+.modules-container {
   background: var(--bg-white);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
@@ -117,15 +266,81 @@ body::before {
   margin-bottom: 2rem;
 }
 
-.table-wrapper {
+.modules-wrapper {
   overflow-x: auto;
 }
 
-/* Table styles */
-.modules-table {
+/* Modules list styles */
+.modules-list {
   width: 100%;
-  border-collapse: collapse;
   font-size: 0.95rem;
+}
+
+.modules-header {
+  background: var(--hover-bg);
+  display: grid;
+  grid-template-columns: 2fr 3fr 100px 120px;
+  gap: 0;
+  padding: 0;
+  border-bottom: 2px solid var(--border-light);
+}
+
+.modules-header > div {
+  padding: 1rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  font-size: 0.95rem;
+}
+
+/* ==========================================================================
+   MODULES GRID LAYOUT
+   ========================================================================== */
+
+/* Main container for module listings using flexbox */
+.modules-grid {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ==========================================================================
+   MODULE ITEM CARDS
+   ========================================================================== */
+
+/* Individual module card with grid layout for consistent column alignment */
+.module-item {
+  display: grid;
+  grid-template-columns: 2fr 3fr 100px 120px; /* Fixed widths for proper alignment */
+  gap: 0;
+  border-bottom: 1px solid var(--border-light);
+  cursor: pointer;
+  transition: var(--transition);
+  text-decoration: none;
+  color: inherit;
+}
+
+.module-item:hover {
+  background-color: var(--hover-bg);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
+}
+
+.module-item:active {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow);
+}
+
+.module-item:focus {
+  outline: 2px solid var(--ss-blue);
+  outline-offset: -2px;
+  background-color: var(--hover-bg);
+}
+
+.module-item > div {
+  padding: 1rem;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  display: flex;
+  align-items: flex-start;
 }
 
 .modules-table thead {
@@ -158,33 +373,59 @@ body::before {
 
 .module-row:hover {
   background-color: var(--hover-bg);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
   box-shadow: var(--shadow-hover);
 }
 
 .module-row:active {
-  transform: translateY(0);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow);
 }
 
-.module-row:focus {
+.module-row:focus-visible {
   outline: 2px solid var(--ss-blue);
   outline-offset: -2px;
 }
 
 /* Module content styling */
 .module-name {
-  font-weight: 600;
+  font-weight: 400;
   color: var(--text-dark);
   margin-bottom: 0.25rem;
   font-size: 0.95rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.2rem;
+}
+
+.module-name-vendor {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: normal;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-bottom: 0.1rem;
+}
+
+.module-name-vendor::before {
+  content: '';
+  width: 16px;
+  height: 16px;
+  background-image: var(--org-avatar);
+  background-size: cover;
+  background-position: center;
+  border-radius: 2px;
+  flex-shrink: 0;
 }
 
 .module-name-package {
-  font-size: 0.85rem;
-  color: var(--text-muted);
-  font-weight: normal;
-  display: block;
-  margin-top: 0.1rem;
+  font-size: 1.05rem;
+  color: var(--ss-blue);
+  font-weight: 500;
+  flex: 1;
+  line-height: 1.3;
 }
 
 .module-description {
@@ -192,6 +433,8 @@ body::before {
   line-height: 1.4;
   max-width: 400px;
   font-size: 0.95rem;
+  text-align: left;
+  align-self: flex-start;
 }
 
 .module-date {
@@ -205,6 +448,7 @@ body::before {
   background: var(--ss-blue);
   color: white;
   padding: 0.25rem 0.5rem;
+	margin-top: 0.1rem;
   border-radius: 4px;
   font-size: 0.75rem;
   font-weight: 500;
@@ -215,8 +459,15 @@ body::before {
   background: var(--text-light);
 }
 
-/* Table footer */
-.table-footer {
+/* Version section alignment */
+.module-version-section {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+
+/* Modules footer */
+.modules-footer {
   padding: 1.5rem;
   text-align: center;
   background: var(--bg-light);
@@ -252,30 +503,48 @@ body::before {
   .site-header h1 {
     font-size: 2rem;
   }
-  
-  .modules-table th,
-  .modules-table td {
+
+  .modules-header,
+  .module-item {
+    grid-template-columns: 1.5fr 2fr 90px 100px;
+  }
+
+  .modules-header > div,
+  .module-item > div {
     padding: 0.75rem;
   }
-  
+
   .container {
     padding: 0 15px;
   }
 }
 
 @media (max-width: 567px) {
-  .modules-table th:nth-child(3),
-  .modules-table td:nth-child(3) {
+  .modules-header,
+  .module-item {
+    grid-template-columns: 2fr 3fr 100px;
+  }
+
+  .header-version,
+  .module-version-section {
     display: none;
   }
-  
-  .modules-table th,
-  .modules-table td {
+
+  .modules-header > div,
+  .module-item > div {
     padding: 0.5rem;
   }
-  
+
   .module-description {
     max-width: 250px;
+  }
+
+  .module-name-package {
+    font-size: 0.95rem;
+  }
+
+  .module-name-vendor {
+    font-size: 0.7rem;
   }
 }
 
@@ -285,17 +554,17 @@ body::before {
     background: none !important;
     color: black !important;
   }
-  
-  .modules-table {
+
+  .modules-list {
     border: 1px solid #000;
   }
-  
-  .modules-table th,
-  .modules-table td {
+
+  .modules-header > div,
+  .module-item > div {
     border: 1px solid #000;
   }
-  
-  .module-row:hover {
+
+  .module-item:hover {
     background: none !important;
     transform: none !important;
     box-shadow: none !important;

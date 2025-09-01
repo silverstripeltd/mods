@@ -61,9 +61,22 @@ For each module, we collect:
 
 ### Available Scripts
 
-- `npm run build` - Full build: fetch data + build site
-- `npm run fetch` - Fetch modules data only
-- `npm run dev` - Build and serve locally
+**Development Workflow:**
+- `npm run dev:full` - Complete development setup with hot reload
+- `npm run dev:copy` - Copy site files to dist for development
+- `npm run dev:serve` - Start live-server on port 3000
+- `npm run dev:watch` - Watch for file changes and auto-copy
+- `npm run dev` - Quick dev setup (copy + serve)
+
+**Production Workflow:**
+- `npm run build` - Full production build: fetch data + build site
+- `npm run fetch` - Fetch modules data only (updates data/modules.json)
+
+**Individual Scripts:**
+- `npm run dev:copy` - Copy development files to dist/
+- `npm run dev:serve` - Start development server
+- `npm run dev:watch` - File watcher for hot reload
+- `npm run fetch` - Fetch latest module data from APIs
 
 ### Manual Commands
 

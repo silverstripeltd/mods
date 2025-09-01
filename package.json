@@ -5,7 +5,11 @@
   "type": "module",
   "scripts": {
     "build": "node scripts/fetch-modules.js && node scripts/build.js",
-    "dev": "npm run build && npx serve dist",
+    "dev": "npm run dev:copy && npm run dev:serve",
+    "dev:copy": "node scripts/dev-copy.js",
+    "dev:serve": "live-server dist --port=3000 --host=localhost --open",
+    "dev:watch": "chokidar \"site/**/*\" -c \"npm run dev:copy\"",
+    "dev:full": "npm run dev:copy && npm-run-all --parallel dev:watch dev:serve",
     "fetch": "node scripts/fetch-modules.js"
   },
   "engines": {
@@ -18,8 +22,16 @@
   "keywords": [
     "silverstripe",
     "modules",
-    "github-pages"
+    "github-pages",
+    "static-site",
+    "rss-feed",
+    "api-integration"
   ],
-  "author": "",
-  "license": "MIT"
+  "author": "Ed Wilde",
+  "license": "MIT",
+  "devDependencies": {
+    "chokidar-cli": "^3.0.0",
+    "live-server": "^1.2.2",
+    "npm-run-all": "^4.1.5"
+  }
 }
