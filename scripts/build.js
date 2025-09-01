@@ -64,6 +64,13 @@ function copySiteAssets() {
   const minifiedCSS = minifyCSS(cssContent).css;
   writeFileSync(join(DIST_DIR, 'styles.css'), minifiedCSS);
 
+  // Copy images directory if it exists
+  const imagesDir = join(SITE_DIR, 'images');
+  if (existsSync(imagesDir)) {
+    cpSync(imagesDir, join(DIST_DIR, 'images'), { recursive: true });
+    console.log('🖼️  Copied images directory to dist');
+  }
+
   console.log('📋 Copied and minified site assets to dist');
 }
 
