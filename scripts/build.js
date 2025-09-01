@@ -124,12 +124,11 @@ function generateRSSFile() {
   const rssPath = join(DIST_DIR, 'feed.xml');
 
   // Site configuration for RSS feed metadata
-  // TODO: Update with actual deployment URL and contact information
   const siteConfig = {
     title: 'Silverstripe Mods',
-    description: 'Latest Silverstripe modules - automatically updated daily',
-    siteUrl: 'https://username.github.io/silverstripe-mods', // Update with your actual URL
-    email: 'noreply@example.com'
+    description: 'Latest Silverstripe module releases, updated daily',
+    siteUrl: 'https://silverstripeltd.github.io/mods',
+    email: 'noreply@silverstripeltd.github.io'
   };
 
   generateRSSFeed(modulesData, rssPath, siteConfig);

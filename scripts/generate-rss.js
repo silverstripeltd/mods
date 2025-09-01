@@ -68,11 +68,11 @@ class RSSGenerator {
     <managingEditor>${this.siteConfig.email || 'noreply@example.com'} (Silverstripe Mods)</managingEditor>
     <atom:link href="${this.siteConfig.siteUrl}/feed.xml" rel="self" type="application/rss+xml"/>
     <image>
-      <url>${this.siteConfig.siteUrl}/favicon.ico</url>
+      <url>${this.siteConfig.siteUrl}/images/meta-image.jpg</url>
       <title>${this.escapeXml(this.siteConfig.title)}</title>
       <link>${this.siteConfig.siteUrl}</link>
-      <width>32</width>
-      <height>32</height>
+      <width>1200</width>
+      <height>630</height>
     </image>
 ${items.join('')}
   </channel>
@@ -157,9 +157,9 @@ export function generateRSSFeed(modules, outputPath, siteConfig = {}) {
   // Default configuration for RSS feed metadata
   const defaultConfig = {
     title: 'Silverstripe Mods',
-    description: 'Latest Silverstripe modules - automatically updated daily',
-    siteUrl: 'https://username.github.io/silverstripe-mods',
-    email: 'noreply@example.com'
+    description: 'Latest Silverstripe module releases, updated daily',
+    siteUrl: 'https://silverstripeltd.github.io/mods',
+    email: 'noreply@silverstripeltd.github.io'
   };
 
   // Merge provided config with defaults
