@@ -7,9 +7,6 @@ A GitHub Pages site that automatically displays the latest 20 Silverstripe modul
 - **Automated Updates**: Daily GitHub Actions workflow fetches the latest Silverstripe modules
 - **RSS Feed**: Subscribe to new modules via `/feed.xml`
 - **Static HTML**: Fast loading with zero JavaScript - all data embedded at build time
-- **Clean Design**: Modern, responsive table with light/dark mode support
-- **Accessible**: Semantic HTML, proper ARIA labels, keyboard navigation, and high contrast
-- **Zero Dependencies**: Uses only Node.js built-in features and GitHub's API
 - **Fast Loading**: Optimized for performance with minimal payload
 
 ## 📊 Data Sources
@@ -19,6 +16,7 @@ The site uses a robust data fetching strategy with fallbacks:
 1. **Primary**: GitHub Search API to find repositories with:
    - `topic:silverstripe-vendormodule` or `topic:silverstripe-module`
    - Repository names containing "silverstripe-"
+	- Specific known Silverstripe GitHub users
    - Validates modules by checking `composer.json` for Silverstripe types
 
 2. **Fallback**: Packagist API for `silverstripe-vendormodule` and `silverstripe-module` packages
@@ -134,16 +132,6 @@ Your site will be available at: `https://username.github.io/repository-name`
 └── README.md              # This file
 ```
 
-## 🎨 Design Features
-
-- **Responsive**: Works on desktop, tablet, and mobile
-- **Dark Mode**: Automatic based on system preference
-- **Accessible**: WCAG compliant with semantic markup
-- **Performance**: Minimal JavaScript, optimized CSS
-- **Typography**: System font stack for optimal rendering
-- **RSS Feed**: XML feed available at `/feed.xml` for syndication
-- **Static Generation**: All module data embedded at build time for instant loading
-
 ## 🔍 Troubleshooting
 
 ### Build Issues
@@ -184,10 +172,4 @@ Check the **Actions** tab in your repository for detailed logs.
 
 ## 📄 License
 
-MIT License - see the repository for details.
-
----
-
-**Last Updated**: Auto-generated daily by GitHub Actions
-**Data Sources**: GitHub API & Packagist
-**Hosting**: GitHub Pages
+MIT License

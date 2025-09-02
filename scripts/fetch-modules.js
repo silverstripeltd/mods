@@ -180,15 +180,16 @@ class ModuleFetcher {
 
       // Priority 2: Main organizations with recent activity
       'user:silverstripe language:PHP pushed:>2023-01-01',
+      'user:silverstripeltd language:PHP pushed:>2023-01-01',
 
       // Priority 3: Topic-based searches (well-categorized modules)
       'topic:silverstripe-vendormodule language:PHP',
       'topic:silverstripe-module language:PHP',
       'topic:silverstripe-theme language:PHP',
 
-      // Priority 4: Organizations from your composer.json + other active contributors
+      // Priority 4: Organizations + other active contributors
       'user:jonom language:PHP',
-      'user:lozcalver language:PHP', // kinglozzer/metatitle is actually here
+      'user:lozcalver language:PHP',
       'user:nswdpc language:PHP',
       'user:silverstripe-terraformers language:PHP',
       'user:wilr language:PHP',
@@ -199,11 +200,22 @@ class ModuleFetcher {
       'user:bigfork language:PHP',
       'user:lekoala language:PHP',
       'user:axllent language:PHP',
+			'user:WPP-Public language:PHP', // AKQA
+			'user:cambis language:PHP',
+			'user:silvershop language:PHP',
+			'user:undefinedoffset language:PHP',
+			'user:undigitalvn language:PHP',
+			'user:dft language:PHP',
+			'user:firesphere language:PHP',
+			'user:emteknetnz language:PHP',
+			'user:catalyst language:PHP',
 
       // Priority 5: Simplified content-based searches to avoid rate limits
       'silverstripe in:name language:PHP',
       '"silverstripe/framework" in:file filename:composer.json'
-    ];    const foundRepos = new Set();
+    ];
+
+		const foundRepos = new Set();
     const modules = [];
 
     for (const query of searchQueries) {
