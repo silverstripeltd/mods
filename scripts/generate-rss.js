@@ -55,7 +55,7 @@ class RSSGenerator {
     const buildDate = now.toUTCString();
 
     return `<?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>${this.escapeXml(this.siteConfig.title)}</title>
     <link>${this.siteConfig.siteUrl}</link>
@@ -81,18 +81,21 @@ ${items.join('')}
 
   /**
    * Create individual RSS item XML for a single module
-   * @param {Object} module - Module object with name, description, url, published
+   * @param {Object} module - Module object with name, description, url, published, version
    * @returns {string} RSS item XML element
    */
   createRSSItem(module) {
     const pubDate = new Date(module.published).toUTCString();
     const description = this.createItemDescription(module);
     const guid = this.createGuid(module);
+    const title = this.createItemTitle(module);
+    const htmlContent = this.createHtmlContent(module);
 
     return `    <item>
-      <title>${this.escapeXml(module.name)}</title>
+      <title>${this.escapeXml(title)}</title>
       <link>${this.escapeXml(module.url)}</link>
       <description>${this.escapeXml(description)}</description>
+      <content:encoded><![CDATA[${htmlContent}]]></content:encoded>
       <pubDate>${pubDate}</pubDate>
       <guid isPermaLink="false">${guid}</guid>
       <category>Silverstripe</category>
@@ -103,7 +106,7 @@ ${items.join('')}
 
   /**
    * Create detailed item description for RSS feed
-   * Includes module description, publication date, and repository URL
+   * Includes module description and publication date
    * @param {Object} module - Module object
    * @returns {string} Formatted description text
    */
@@ -113,8 +116,55 @@ ${items.join('')}
 
     return `${description}
 
-Published: ${publishedDate}
-Repository: ${module.url}`;
+Published: ${publishedDate}`;
+  }
+
+  /**
+   * Create item title with version if available
+   * @param {Object} module - Module object
+   * @returns {string} Title with optional version
+   */
+  createItemTitle(module) {
+    if (module.version && module.version !== '-') {
+      return `${module.name} ${module.version}`;
+    }
+    return module.name;
+  }
+
+  /**
+   * Create HTML content for content:encoded tag
+   * @param {Object} module - Module object
+   * @returns {string} HTML content with links
+   */
+  createHtmlContent(module) {
+    const description = module.description || 'No description available';
+    let html = `<p>${this.escapeHtml(description)}</p>`;
+
+    // Add repository link
+    html += `<p><strong>Repository:</strong> <a href="${this.escapeHtml(module.url)}" target="_blank" rel="noopener">${this.escapeHtml(module.name)}</a></p>`;
+
+    // Add release notes link if version exists
+    if (module.version && module.version !== '-') {
+      const releaseUrl = `${module.url}/releases/tag/${module.version}`;
+      html += `<p><strong>Release Notes:</strong> <a href="${this.escapeHtml(releaseUrl)}" target="_blank" rel="noopener">${this.escapeHtml(module.version)}</a></p>`;
+    }
+
+    return html;
+  }
+
+  /**
+   * Escape HTML special characters for HTML content
+   * @param {string} text - Text to escape
+   * @returns {string} HTML-escaped text
+   */
+  escapeHtml(text) {
+    if (!text) return '';
+    return text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#x27;');
   }
 
   /**
