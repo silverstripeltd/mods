@@ -33,6 +33,9 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
+      - name: Keep workflow alive
+        uses: silverstripe/gha-keepalive@v1
+
       - name: Checkout repository
         uses: actions/checkout@v4
 
