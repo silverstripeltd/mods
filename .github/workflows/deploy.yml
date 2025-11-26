@@ -2,7 +2,7 @@
 name: Build and Deploy to GitHub Pages
 
 on:
-  # Run daily at 5:00 AM NZST (18:00 UTC)
+  # Run daily at 5:00 AM NZST (17:00 UTC)
   schedule:
     - cron: '0 17 * * *'
 
