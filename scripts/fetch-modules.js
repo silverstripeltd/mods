@@ -177,6 +177,9 @@ class ModuleFetcher {
       // Priority 1: Recent activity across all Silverstripe repos (most important)
       'silverstripe language:PHP pushed:>2024-01-01',
       'silverstripe language:PHP updated:>2024-06-01',
+      // Include JavaScript modules (admin UI enhancements, React components, etc.)
+      'silverstripe language:JavaScript pushed:>2024-01-01',
+      'topic:silverstripe-vendormodule language:JavaScript',
 
       // Priority 2: Main organizations with recent activity
       'user:silverstripe language:PHP pushed:>2023-01-01',
