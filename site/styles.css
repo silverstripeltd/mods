@@ -262,7 +262,7 @@ body::before {
   border-radius: var(--radius);
   box-shadow: var(--shadow);
   overflow: hidden;
-  margin-bottom: 2rem;
+  margin-bottom: 0;
 }
 
 .modules-wrapper {
@@ -337,6 +337,10 @@ body::before {
 .module-item:active {
   transform: translateY(-1px);
   box-shadow: var(--shadow);
+}
+
+.module-item:last-child {
+    border-bottom: none;
 }
 
 .module-item:focus {
@@ -427,6 +431,35 @@ body::before {
   background: var(--text-light);
 }
 
+/* Date group sections */
+.date-group {
+    margin-bottom: 2rem;
+}
+
+.date-group:last-child {
+    margin-bottom: 0;
+}
+
+.date-group-heading {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+}
+
+.date-group-heading .date-count {
+    font-weight: 400;
+    font-size: 0.85rem;
+    color: var(--text-light);
+}
+
+.date-group.group-date .date-group-heading {
+    font-size: 1.15rem;
+}
+
 /* Version section alignment */
 .module-version-section {
   display: flex;
@@ -438,9 +471,9 @@ body::before {
 .modules-footer {
   padding: 1.5rem;
   text-align: center;
-  background: var(--bg-light);
   color: var(--text-muted);
   font-size: 0.9rem;
+  margin-top: 2rem;
 }
 
 /* Site footer */
@@ -473,7 +506,7 @@ body::before {
   }
 
   .modules-header,
-  .module-item {
+  .module-content {
     grid-template-columns: 1.5fr 2fr 90px 100px;
   }
 
@@ -489,7 +522,7 @@ body::before {
 
 @media (max-width: 567px) {
   .modules-header,
-  .module-item {
+  .module-content {
     grid-template-columns: 2fr 3fr 100px;
   }
 
