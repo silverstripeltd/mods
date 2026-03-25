@@ -57,31 +57,15 @@
     <!-- Main content area -->
     <main class="main-content">
         <div class="container">
-            <div class="modules-container">
-                <div class="modules-wrapper">
-                    <!-- Module listing section with accessibility label -->
-                    <section class="modules-list" aria-label="Silverstripe Mods - Latest modules sorted by publication date">
-                        <!-- Column headers for the module grid -->
-                        <div class="modules-header" aria-hidden="true">
-                            <div class="header-name">Module Name</div>
-                            <div class="header-description">Description</div>
-                            <div class="header-version">Version</div>
-                            <div class="header-released">Released</div>
-                        </div>
-                        <!-- Dynamic module grid populated with generated articles -->
-                        <div class="modules-grid">
-                            {{MODULE_ARTICLES}}
-                        </div>
-                    </section>
-                </div>
+            <!-- Dynamic date-grouped module sections populated during build -->
+            {{MODULE_ARTICLES}}
 
-                <!-- Footer with timestamp information -->
-                <div class="modules-footer">
-                    <p class="last-updated">
-                        <!-- Dynamic timestamp populated during build -->
-                        <small>Last updated: {{LAST_UPDATED}}</small>
-                    </p>
-                </div>
+            <!-- Footer with timestamp information -->
+            <div class="modules-footer">
+                <p class="last-updated">
+                    <!-- Dynamic timestamp populated during build -->
+                    <small>Last updated: {{LAST_UPDATED}}. All dates are in New Zealand time.</small>
+                </p>
             </div>
         </div>
     </main>
