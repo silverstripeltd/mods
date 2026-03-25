@@ -169,7 +169,7 @@ class StaticHTMLGenerator {
             <a href="${module.url}" target="_blank" rel="noopener noreferrer" class="module-item"
                 aria-label="View ${this.escapeHtml(module.name)} repository on GitHub">
               <article class="module-content">
-                <h2 class="visually-hidden">Module: ${this.escapeHtml(module.name)}</h2>
+                <h3 class="visually-hidden">Module: ${this.escapeHtml(module.name)}</h3>
                 <div class="module-name-section">
                   <div class="module-name"><span class="visually-hidden">Module name: </span>${moduleName}</div>
                 </div>
@@ -187,15 +187,59 @@ class StaticHTMLGenerator {
   }
 
   /**
-   * Generate HTML for all module links
-   * Processes the entire module array and creates anchor elements
-   * @returns {string} Combined HTML for all module links
+   * Generate HTML for all modules, grouped by date into separate sections.
+   * Each group gets an h2 heading and its own table container.
+   * Column headers only appear on the first group.
+   * Assumes modules are pre-sorted by published date (newest first).
+   * @returns {string} Combined HTML with date group sections
    */
   generateModuleArticles() {
-    console.log('Generating module articles...');
-    return this.modules.map((module, index) => {
+    console.log('Generating grouped module articles...');
+
+    // Group modules by date label (sequential run-length grouping)
+    const groups = [];
+    let currentLabel = null;
+
+    this.modules.forEach((module, index) => {
       console.log(`Processing module ${index + 1}: ${module.name}`);
-      return this.generateModuleArticle(module);
+      const group = this.getDateGroupLabel(module.published);
+      if (group.label !== currentLabel) {
+        groups.push({ label: group.label, css: group.css, modules: [module] });
+        currentLabel = group.label;
+      } else {
+        groups[groups.length - 1].modules.push(module);
+      }
+    });
+
+    return groups.map((group, groupIndex) => {
+      const count = group.modules.length;
+      const modulesHtml = group.modules.map(m => this.generateModuleArticle(m)).join('');
+
+      const headerHtml = groupIndex === 0 ? `
+                        <div class="modules-header" aria-hidden="true">
+                            <div class="header-name">Module Name</div>
+                            <div class="header-description">Description</div>
+                            <div class="header-version">Version</div>
+                            <div class="header-released">Released</div>
+                        </div>` : '';
+
+      return `
+                <section class="date-group ${group.css}" aria-label="Modules released ${this.escapeHtml(group.label)}">
+                    <h2 class="date-group-heading">
+                        ${this.escapeHtml(group.label)}
+                        <span class="date-count">${count} module${count !== 1 ? 's' : ''}</span>
+                    </h2>
+                    <div class="modules-container">
+                        <div class="modules-wrapper">
+                            <div class="modules-list">
+                                ${headerHtml}
+                                <div class="modules-grid">
+                                    ${modulesHtml}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>`;
     }).join('');
   }
 
