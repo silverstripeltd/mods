@@ -29,6 +29,19 @@ class StaticHTMLGenerator {
    */
   constructor(modules) {
     this.modules = modules;
+
+    // NZ timezone formatters for consistent date handling
+    this.nzDateFormatter = new Intl.DateTimeFormat('en-NZ', {
+      timeZone: 'Pacific/Auckland',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    });
+    this.nzDayFormatter = new Intl.DateTimeFormat('en-NZ', {
+      timeZone: 'Pacific/Auckland',
+      weekday: 'long'
+    });
+    this.todayNZ = this.nzDateFormatter.format(new Date());
   }
 
   /**
@@ -64,7 +77,7 @@ class StaticHTMLGenerator {
   }
 
   /**
-   * Format date string to NZ locale format (dd/mm/yyyy)
+   * Format date string to NZ locale format (dd/mm/yyyy) in NZ timezone
    * @param {string} dateString - ISO date string or date-parseable string
    * @returns {string} Formatted date string or 'Unknown' if invalid
    */
@@ -74,13 +87,7 @@ class StaticHTMLGenerator {
       if (isNaN(date.getTime())) {
         return 'Unknown';
       }
-
-      // Format as dd/mm/yyyy for NZ locale
-      const day = date.getDate().toString().padStart(2, '0');
-      const month = (date.getMonth() + 1).toString().padStart(2, '0');
-      const year = date.getFullYear();
-
-      return `${day}/${month}/${year}`;
+      return this.nzDateFormatter.format(date);
     } catch (error) {
       console.warn('Failed to format date:', dateString, error);
       return 'Unknown';
@@ -112,6 +119,38 @@ class StaticHTMLGenerator {
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;')
       .replace(/'/g, '&#x27;');
+  }
+
+  /**
+   * Get a relative date group label for a module's published date (NZ timezone)
+   * @param {string} dateString - ISO date string
+   * @returns {{ label: string, css: string }}
+   */
+  getDateGroupLabel(dateString) {
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return { label: 'Unknown', css: '' };
+
+      const moduleDate = this.nzDateFormatter.format(date);
+
+      // Both dates are parsed from NZ-formatted strings (dd/mm/yyyy), so the
+      // timezone of the Date constructor cancels out in the subtraction.
+      const todayParts = this.todayNZ.split('/');
+      const moduleParts = moduleDate.split('/');
+      const todayDate = new Date(todayParts[2], todayParts[1] - 1, todayParts[0]);
+      const moduleDay = new Date(moduleParts[2], moduleParts[1] - 1, moduleParts[0]);
+      const diffDays = Math.round((todayDate - moduleDay) / (1000 * 60 * 60 * 24));
+
+      if (diffDays <= 0) return { label: 'Today', css: 'group-today' };
+      if (diffDays === 1) return { label: 'Yesterday', css: 'group-yesterday' };
+      if (diffDays < 7) {
+        const dayName = this.nzDayFormatter.format(date);
+        return { label: dayName, css: '' };
+      }
+      return { label: this.formatDate(dateString), css: 'group-date' };
+    } catch {
+      return { label: 'Unknown', css: '' };
+    }
   }
 
   /**
@@ -161,12 +200,13 @@ class StaticHTMLGenerator {
   }
 
   /**
-   * Get current timestamp formatted for NZ locale
+   * Get current timestamp formatted for NZ locale and timezone
    * @returns {string} Formatted timestamp string with timezone
    */
   getCurrentTimestamp() {
     const now = new Date();
     return now.toLocaleDateString('en-NZ', {
+      timeZone: 'Pacific/Auckland',
       year: 'numeric',
       month: 'long',
       day: 'numeric',
