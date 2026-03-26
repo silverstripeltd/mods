@@ -278,8 +278,7 @@ class StaticHTMLGenerator {
     // Replace placeholders in template with generated content
     let html = template
       .replace('{{MODULE_ARTICLES}}', moduleArticles)
-      .replace('{{LAST_UPDATED}}', timestamp)
-      .replace('{{MODULE_COUNT}}', this.modules.length);
+      .replace('{{LAST_UPDATED}}', timestamp);
 
     // Minify the HTML for production
     try {
