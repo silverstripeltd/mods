@@ -35,12 +35,10 @@ class RSSGenerator {
 
   /**
    * Generate complete RSS feed XML
-   * Limits to most recent 20 modules to keep feed manageable
    * @returns {string} Complete RSS XML feed content
    */
   generate() {
-    // Limit to most recent 20 modules for RSS feed performance
-    const rssItems = this.modules.slice(0, 20).map(module => this.createRSSItem(module));
+    const rssItems = this.modules.map(module => this.createRSSItem(module));
     const rss = this.createRSSFeed(rssItems);
     return rss;
   }
