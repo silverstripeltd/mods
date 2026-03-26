@@ -476,9 +476,13 @@ class ModuleFetcher {
     // Sort by published date and filter to time window
     modules = this.sortModulesByDate(modules);
 
-    // Filter to modules published within the time window
+    // Filter to modules within the named-day window (today + 6 previous days).
+    // The HTML grouper shows named days for diffDays 0–6; anything older shows
+    // as a raw date. Setting cutoff to midnight (WINDOW_DAYS - 1) days ago
+    // ensures every returned module falls in the named-day range.
     const cutoffDate = new Date();
-    cutoffDate.setDate(cutoffDate.getDate() - WINDOW_DAYS);
+    cutoffDate.setDate(cutoffDate.getDate() - (WINDOW_DAYS - 1));
+    cutoffDate.setHours(0, 0, 0, 0);
     modules = modules.filter(m => new Date(m.published) >= cutoffDate);
 
     console.log(`\nFound ${modules.length} Silverstripe modules from the last ${WINDOW_DAYS} days`);
