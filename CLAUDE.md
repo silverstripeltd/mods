@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Silverstripe Mods is a static GitHub Pages site that displays the 20 most recently published Silverstripe modules. It updates daily via GitHub Actions, fetching data from GitHub and Packagist APIs, then generating static HTML with all data embedded at build time (zero client-side JavaScript for data). Includes an RSS feed at `/feed.xml`.
+Silverstripe Mods is a static GitHub Pages site that displays Silverstripe modules published in the last 7 days. It updates daily via GitHub Actions, fetching data from GitHub and Packagist APIs, then generating static HTML with all data embedded at build time (zero client-side JavaScript for data). Includes an RSS feed at `/feed.xml`.
 
 ## Commands
 
@@ -31,7 +31,7 @@ The build pipeline is a sequential Node.js process using ES modules (`"type": "m
 
 ### Key scripts
 
-- **`scripts/fetch-modules.js`** — `ModuleFetcher` class that queries GitHub Search API (18+ targeted queries by topic, org, language) with Packagist fallback. Validates repos by checking their `composer.json` for Silverstripe module types. Has built-in rate limiting (100ms between requests), retry with exponential backoff, and 404 caching. Outputs sorted by publication date, capped at 20.
+- **`scripts/fetch-modules.js`** — `ModuleFetcher` class that queries GitHub Search API (18+ targeted queries by topic, org, language) with Packagist fallback. Validates repos by checking their `composer.json` for Silverstripe module types. Has built-in rate limiting (100ms between requests), retry with exponential backoff, and 404 caching. Outputs sorted by publication date, filtered to a 7-day rolling window.
 
 - **`scripts/build.js`** — Orchestrator that cleans `dist/`, minifies CSS (via `csso`), copies images, then delegates to the two generators below.
 

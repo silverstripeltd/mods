@@ -1,7 +1,7 @@
 {
   "name": "silverstripe-mods",
   "version": "1.0.0",
-  "description": "Silverstripe Mods - GitHub Pages site showing the latest 20 Silverstripe modules with RSS feed",
+  "description": "Silverstripe Mods - GitHub Pages site showing Silverstripe module releases from the last 7 days with RSS feed",
   "type": "module",
   "scripts": {
     "build": "node scripts/fetch-modules.js && node scripts/build.js",
