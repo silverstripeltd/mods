@@ -14,7 +14,8 @@ import { dirname } from 'path';
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 const GITHUB_API_BASE = 'https://api.github.com';
 const PACKAGIST_API_BASE = 'https://packagist.org';
-const MAX_MODULES = 20;
+const WINDOW_DAYS = 7;
+const MAX_CANDIDATES = 100;
 
 /**
  * ModuleFetcher Class
@@ -222,7 +223,7 @@ class ModuleFetcher {
     const modules = [];
 
     for (const query of searchQueries) {
-      if (modules.length >= MAX_MODULES * 3) break; // Get more than we need for better diversity
+      if (modules.length >= MAX_CANDIDATES) break;
 
       try {
         // Sort by updated (recently maintained) rather than created (first published)
@@ -231,7 +232,6 @@ class ModuleFetcher {
         const data = await response.json();
 
         for (const repo of data.items || []) {
-          if (modules.length >= MAX_MODULES) break;
           if (foundRepos.has(repo.full_name)) continue;
 
           foundRepos.add(repo.full_name);
@@ -423,7 +423,7 @@ class ModuleFetcher {
       const detail = await detailResponse.json();
 
       const latestVersion = detail.package.versions[detail.package.version];
-      const publishedDate = new Date(latestVersion.time);
+      const publishedDate = new Date(latestVersion.time).toISOString();
 
       return {
         name: module.name,
@@ -458,7 +458,7 @@ class ModuleFetcher {
     try {
       modules = await this.searchGitHubRepositories();
 
-      if (modules.length < MAX_MODULES) {
+      if (modules.length < 10) {
         console.log(`Only found ${modules.length} modules via GitHub, trying Packagist...`);
         const packagistModules = await this.fallbackToPackagist();
 
@@ -473,15 +473,17 @@ class ModuleFetcher {
       modules = await this.fallbackToPackagist();
     }
 
-    // Sort by published date and limit to MAX_MODULES
-    modules = this.sortModulesByDate(modules).slice(0, MAX_MODULES);
+    // Sort by published date and filter to time window
+    modules = this.sortModulesByDate(modules);
 
-    console.log(`\nFound ${modules.length} Silverstripe modules`);
+    // Filter to modules published within the time window
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - WINDOW_DAYS);
+    modules = modules.filter(m => new Date(m.published) >= cutoffDate);
+
+    console.log(`\nFound ${modules.length} Silverstripe modules from the last ${WINDOW_DAYS} days`);
     if (modules.length > 0) {
-      console.log('Top 3 modules:');
-      modules.slice(0, 3).forEach((mod, i) => {
-        console.log(`  ${i + 1}. ${mod.name} (${mod.published.split('T')[0]})`);
-      });
+      console.log(`Date range: ${modules[modules.length - 1].published.split('T')[0]} → ${modules[0].published.split('T')[0]}`);
     }
 
     return modules;
