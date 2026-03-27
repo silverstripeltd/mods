@@ -107,6 +107,57 @@ class StaticHTMLGenerator {
   }
 
   /**
+   * Generate an inline SVG sparkline from weekly commit activity data
+   * Creates a filled area chart with stroke line, plus month range labels
+   * @param {number[]} activity - Array of up to 13 weekly commit totals (oldest first)
+   * @returns {string} HTML string containing SVG sparkline and range labels
+   */
+  generateSparkline(activity) {
+    const width = 110;
+    const height = 28;
+    const padding = 2;
+
+    // Default to empty if no data; pad to 13 if shorter
+    if (!activity || activity.length === 0) {
+      activity = new Array(13).fill(0);
+    }
+    while (activity.length < 13) activity.unshift(0);
+
+    const max = Math.max(...activity, 1); // avoid division by zero
+    const stepX = width / (activity.length - 1);
+
+    const points = activity.map((val, i) => {
+      const x = Math.round(i * stepX * 10) / 10;
+      const y = Math.round((height - padding - (val / max) * (height - padding)) * 10) / 10;
+      return `${x},${y}`;
+    });
+
+    const polylinePoints = points.join(' ');
+    const pathD = `M0,${height} L${points.join(' L')} L${width},${height}Z`;
+
+    // Dormant modules get reduced opacity
+    const isDormant = max <= 1;
+    const strokeOpacity = isDormant ? ' opacity="0.3"' : '';
+    const fillOpacity = isDormant ? '0.06' : '0.10';
+
+    // Compute month abbreviation for 3 months ago
+    const threeMonthsAgo = new Date();
+    threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+    const monthLabel = threeMonthsAgo.toLocaleString('en-NZ', {
+      month: 'short',
+      timeZone: 'Pacific/Auckland'
+    });
+
+    return `<div class="sparkline-wrap">
+                                          <svg class="sparkline" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" fill="none" role="img" aria-label="13 weeks of commit activity">
+                                            <path d="${pathD}" fill="rgba(0,90,225,${fillOpacity})" stroke="none"/>
+                                            <polyline points="${polylinePoints}" stroke="#005ae1" stroke-width="1.5" fill="none" stroke-linejoin="round" stroke-linecap="round"${strokeOpacity}/>
+                                          </svg>
+                                          <div class="sparkline-range"><span>${monthLabel}</span><span>now</span></div>
+                                        </div>`;
+  }
+
+  /**
    * Escape HTML special characters to prevent XSS
    * @param {string} text - Text to escape
    * @returns {string} HTML-escaped text
@@ -162,7 +213,6 @@ class StaticHTMLGenerator {
   generateModuleArticle(module) {
     const moduleName = this.formatModuleName(module.name, module.url);
     const escapedDescription = this.escapeHtml(module.description);
-    const formattedDate = this.formatDate(module.published);
     const versionBadge = this.createVersionBadge(module.version);
 
     return `
@@ -179,8 +229,8 @@ class StaticHTMLGenerator {
                 <div class="module-version-section">
                   <span class="visually-hidden">Version: </span>${versionBadge}
                 </div>
-                <div class="module-date-section">
-                  <div class="module-date"><span class="visually-hidden">Released: </span>${formattedDate}</div>
+                <div class="module-activity-section">
+                  <span class="visually-hidden">Commit activity: </span>${this.generateSparkline(module.activity)}
                 </div>
               </article>
             </a>`;
@@ -220,7 +270,7 @@ class StaticHTMLGenerator {
                             <div class="header-name">Module Name</div>
                             <div class="header-description">Description</div>
                             <div class="header-version">Version</div>
-                            <div class="header-released">Released</div>
+                            <div class="header-activity">Activity</div>
                         </div>` : '';
 
       return `
