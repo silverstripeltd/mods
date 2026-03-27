@@ -346,7 +346,8 @@ class ModuleFetcher {
         description: description.trim(),
         url: repo.html_url,
         published: publishedDate,
-        version: await this.getLatestVersion(repo)
+        version: await this.getLatestVersion(repo),
+        activity: await this.getCommitActivity(repo)
       };
     } catch (error) {
       console.warn(`Failed to extract data for ${repo.full_name}: ${error.message}`);
@@ -383,6 +384,50 @@ class ModuleFetcher {
       return null;
     } catch (error) {
       return null;
+    }
+  }
+
+  /**
+   * Get 13 weeks of commit activity for a repository
+   * Uses GitHub Stats API which returns weekly commit counts for the last year
+   * @param {Object} repo - GitHub repository object from API
+   * @returns {Promise<number[]>} Array of 13 weekly commit totals (oldest first), or empty array on failure
+   */
+  async getCommitActivity(repo) {
+    const MAX_RETRIES = 3;
+    const RETRY_DELAY = 3000;
+
+    try {
+      const url = `${GITHUB_API_BASE}/repos/${repo.full_name}/stats/commit_activity`;
+
+      for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+        const response = await this.rateLimitedFetch(url);
+
+        if (!response.ok) return [];
+
+        // GitHub returns 202 when stats are being computed — poll until ready
+        if (response.status === 202) {
+          if (attempt < MAX_RETRIES - 1) {
+            await this.sleep(RETRY_DELAY);
+            continue;
+          }
+          console.warn(`⚠️  Stats still computing after ${MAX_RETRIES} attempts for ${repo.full_name}`);
+          return [];
+        }
+
+        const data = await response.json();
+        if (!Array.isArray(data)) return [];
+
+        // Take the last 13 weeks; pad with leading zeros if repo is younger than 13 weeks
+        const weeks = data.map(w => w.total);
+        while (weeks.length < 13) weeks.unshift(0);
+        return weeks.slice(-13);
+      }
+
+      return [];
+    } catch (error) {
+      console.warn(`Failed to get activity for ${repo.full_name}: ${error.message}`);
+      return [];
     }
   }
 
@@ -430,7 +475,8 @@ class ModuleFetcher {
         description: module.description || 'No description available',
         url: module.url || latestVersion.homepage || `https://packagist.org/packages/${module.name}`,
         published: publishedDate,
-        version: detail.package.version
+        version: detail.package.version,
+        activity: []
       };
     } catch (error) {
       console.warn(`Failed to extract Packagist data for ${module.name}: ${error.message}`);
