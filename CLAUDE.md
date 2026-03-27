@@ -17,9 +17,11 @@ npm run fetch          # Fetch module data only (writes data/modules.json)
 
 Individual scripts can be run directly:
 ```bash
-node scripts/fetch-modules.js   # Fetch module data (needs GITHUB_TOKEN for higher rate limits)
-node scripts/build.js           # Build site from existing data/modules.json
+node --env-file=.env scripts/fetch-modules.js   # Fetch module data (token loaded from .env)
+node scripts/build.js                            # Build site from existing data/modules.json
 ```
+
+The `GITHUB_TOKEN` is stored in `.env` (gitignored). Use `--env-file=.env` when running fetch scripts locally.
 
 There are no tests or linting configured in this project.
 
@@ -49,3 +51,7 @@ The build pipeline is a sequential Node.js process using ES modules (`"type": "m
 ### Deployment
 
 GitHub Actions workflow (`.github/workflows/deploy.yml`) runs daily at 17:00 UTC (5 AM NZST), on push to main, or manual dispatch. Uses `GITHUB_TOKEN` for API access. Deploys `dist/` to GitHub Pages.
+
+## Working rules
+
+- **Pre-release demos must use fresh data.** Before showing a built site for visual review, always run the full pipeline (`node --env-file=.env scripts/fetch-modules.js && node scripts/build.js`) so the demo reflects real, current data — not stale or missing fields from a previous fetch.

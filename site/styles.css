@@ -474,7 +474,7 @@ body::before {
 .date-group-heading .date-count {
     font-weight: 400;
     font-size: 0.85rem;
-    color: var(--text-light);
+    color: var(--text-muted);
 }
 
 .date-group.group-date .date-group-heading {

@@ -137,10 +137,8 @@ class StaticHTMLGenerator {
     const polylinePoints = points.join(' ');
     const pathD = `M0,${height} L${points.join(' L')} L${width},${height}Z`;
 
-    // Dormant modules get reduced opacity
-    const isDormant = max <= 1;
-    const strokeOpacity = isDormant ? ' opacity="0.3"' : '';
-    const fillOpacity = isDormant ? '0.06' : '0.10';
+    const fillOpacity = '0.10';
+
 
     // Compute month abbreviation for 3 months ago
     const threeMonthsAgo = new Date();
@@ -153,7 +151,7 @@ class StaticHTMLGenerator {
     return `<div class="sparkline-wrap">
                                           <svg class="sparkline" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" fill="none" role="img" aria-label="13 weeks of commit activity">
                                             <path d="${pathD}" fill="rgba(0,90,225,${fillOpacity})" stroke="none"/>
-                                            <polyline points="${polylinePoints}" stroke="#005ae1" stroke-width="1.5" fill="none" stroke-linejoin="round" stroke-linecap="round"${strokeOpacity}/>
+                                            <polyline points="${polylinePoints}" stroke="#005ae1" stroke-width="1.5" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
                                           </svg>
                                           <div class="sparkline-range"><span>${monthLabel}</span><span>now</span></div>
                                         </div>`;

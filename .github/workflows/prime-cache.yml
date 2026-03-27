@@ -1,0 +1,31 @@
+# filepath: .github/workflows/prime-cache.yml
+name: Prime GitHub Stats Cache
+
+on:
+  # Run 30 minutes before the main build (4:30 AM NZST = 16:30 UTC)
+  schedule:
+    - cron: '30 16 * * *'
+
+  # Allow manual trigger for testing
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  prime:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Prime stats cache
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/prime-stats-cache.js

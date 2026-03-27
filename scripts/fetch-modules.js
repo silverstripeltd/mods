@@ -347,7 +347,7 @@ class ModuleFetcher {
         url: repo.html_url,
         published: publishedDate,
         version: await this.getLatestVersion(repo),
-        activity: await this.getCommitActivity(repo)
+        activity: []
       };
     } catch (error) {
       console.warn(`Failed to extract data for ${repo.full_name}: ${error.message}`);
@@ -388,46 +388,77 @@ class ModuleFetcher {
   }
 
   /**
-   * Get 13 weeks of commit activity for a repository
-   * Uses GitHub Stats API which returns weekly commit counts for the last year
-   * @param {Object} repo - GitHub repository object from API
-   * @returns {Promise<number[]>} Array of 13 weekly commit totals (oldest first), or empty array on failure
+   * Fetch commit activity for all modules using a two-pass approach.
+   * Pass 1: Fire all stats requests in parallel to warm GitHub's cache (most return 202).
+   * Pass 2: After a delay, collect the now-computed results.
+   * @param {Array} modules - Array of module objects with url property
+   * @returns {Promise<void>} Mutates each module's activity property in place
    */
-  async getCommitActivity(repo) {
-    const MAX_RETRIES = 3;
-    const RETRY_DELAY = 3000;
+  async fetchActivityBulk(modules) {
+    // Extract GitHub owner/repo from each module's URL
+    const githubModules = modules.filter(m => m.url && m.url.includes('github.com'));
+    if (githubModules.length === 0) return;
 
-    try {
-      const url = `${GITHUB_API_BASE}/repos/${repo.full_name}/stats/commit_activity`;
+    console.log(`\n📊 Fetching activity data for ${githubModules.length} modules (two-pass)...`);
 
-      for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
-        const response = await this.rateLimitedFetch(url);
-
-        if (!response.ok) return [];
-
-        // GitHub returns 202 when stats are being computed — poll until ready
-        if (response.status === 202) {
-          if (attempt < MAX_RETRIES - 1) {
-            await this.sleep(RETRY_DELAY);
-            continue;
-          }
-          console.warn(`⚠️  Stats still computing after ${MAX_RETRIES} attempts for ${repo.full_name}`);
-          return [];
-        }
-
-        const data = await response.json();
-        if (!Array.isArray(data)) return [];
-
-        // Take the last 13 weeks; pad with leading zeros if repo is younger than 13 weeks
-        const weeks = data.map(w => w.total);
-        while (weeks.length < 13) weeks.unshift(0);
-        return weeks.slice(-13);
+    // Build URL map: module → stats URL
+    const urlMap = new Map();
+    for (const mod of githubModules) {
+      const match = mod.url.match(/github\.com\/([^\/]+\/[^\/]+)/);
+      if (match) {
+        urlMap.set(mod, `${GITHUB_API_BASE}/repos/${match[1]}/stats/commit_activity`);
       }
+    }
 
-      return [];
-    } catch (error) {
-      console.warn(`Failed to get activity for ${repo.full_name}: ${error.message}`);
-      return [];
+    // Pass 1: Warm the cache — fire all requests, accept 202s
+    console.log('   Pass 1: Warming stats cache...');
+    const warmResults = new Map();
+    for (const [mod, url] of urlMap) {
+      try {
+        const response = await this.rateLimitedFetch(url);
+        if (response.ok && response.status !== 202) {
+          // Already cached — grab the data now
+          const data = await response.json();
+          if (Array.isArray(data)) {
+            warmResults.set(mod, data);
+          }
+        }
+      } catch (error) {
+        // Ignore — we'll retry in pass 2
+      }
+    }
+
+    console.log(`   ${warmResults.size}/${urlMap.size} already cached`);
+
+    // Only do pass 2 if there are uncached modules
+    const uncached = [...urlMap.entries()].filter(([mod]) => !warmResults.has(mod));
+    if (uncached.length > 0) {
+      console.log(`   Waiting 8s for GitHub to compute ${uncached.length} remaining...`);
+      await this.sleep(8000);
+
+      // Pass 2: Collect results for previously-uncached modules
+      console.log('   Pass 2: Collecting activity data...');
+      for (const [mod, url] of uncached) {
+        try {
+          const response = await this.rateLimitedFetch(url);
+          if (response.ok && response.status !== 202) {
+            const data = await response.json();
+            if (Array.isArray(data)) {
+              warmResults.set(mod, data);
+            }
+          }
+        } catch (error) {
+          // Module keeps activity: []
+        }
+      }
+      console.log(`   ${warmResults.size}/${urlMap.size} total collected`);
+    }
+
+    // Apply results to modules
+    for (const [mod, data] of warmResults) {
+      const weeks = data.map(w => w.total);
+      while (weeks.length < 13) weeks.unshift(0);
+      mod.activity = weeks.slice(-13);
     }
   }
 
@@ -535,6 +566,9 @@ class ModuleFetcher {
     if (modules.length > 0) {
       console.log(`Date range: ${modules[modules.length - 1].published.split('T')[0]} → ${modules[0].published.split('T')[0]}`);
     }
+
+    // Fetch activity data in bulk (two-pass: warm cache, then collect)
+    await this.fetchActivityBulk(modules);
 
     return modules;
   }
