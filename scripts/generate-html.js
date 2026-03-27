@@ -107,30 +107,37 @@ class StaticHTMLGenerator {
   }
 
   /**
-   * Generate an inline SVG sparkline from weekly commit activity data
-   * Creates a filled area chart with stroke line, plus month range labels
-   * @param {number[]} activity - Array of up to 13 weekly commit totals (oldest first)
+   * Generate an inline SVG sparkline from lifetime code activity data
+   * Creates a filled area chart with stroke line, plus start year / "now" range labels
+   * @param {number[]} activity - Array of weekly churn values (oldest first), variable length
+   * @param {number|null} activityStart - Year the repo was created (e.g. 2018)
    * @returns {string} HTML string containing SVG sparkline and range labels
    */
-  generateSparkline(activity) {
+  generateSparkline(activity, activityStart) {
     const width = 110;
     const height = 28;
     const padding = 2;
 
-    // Default to empty if no data; copy and pad to 13 if shorter
+    // Default to empty if no data; copy to avoid mutating caller's data
     if (!activity || activity.length === 0) {
       activity = new Array(13).fill(0);
     } else {
-      activity = activity.slice(); // avoid mutating caller's data
+      activity = activity.slice();
     }
-    while (activity.length < 13) activity.unshift(0);
 
-    const max = Math.max(...activity, 1); // avoid division by zero
+    // Pad very short arrays so the sparkline has enough points to render a line
+    while (activity.length < 3) activity.push(0);
+
+    // Use 60th percentile as max so old spikes don't crush recent activity
+    const sorted = activity.filter(v => v > 0).sort((a, b) => a - b);
+    const p60 = sorted.length > 0 ? sorted[Math.floor(sorted.length * 0.6)] : 1;
+    const max = Math.max(p60, 1); // avoid division by zero
     const stepX = width / (activity.length - 1);
 
     const points = activity.map((val, i) => {
       const x = Math.round(i * stepX * 10) / 10;
-      const y = Math.round((height - padding - (val / max) * (height - padding)) * 10) / 10;
+      const clamped = Math.min(val, max); // clip values above p60 to the ceiling
+      const y = Math.round((height - padding - (clamped / max) * (height - padding)) * 10) / 10;
       return `${x},${y}`;
     });
 
@@ -141,25 +148,27 @@ class StaticHTMLGenerator {
     const fillOpacity = noData ? '0.06' : '0.10';
     const strokeOpacity = noData ? ' opacity="0.3"' : '';
 
-    // Compute month abbreviation for 3 months ago
-    const threeMonthsAgo = new Date();
-    threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
-    const monthLabel = threeMonthsAgo.toLocaleString('en-NZ', {
-      month: 'short',
-      timeZone: 'Pacific/Auckland'
-    });
+    // Left label: repo start year, or fallback to 3 months ago
+    const startLabel = activityStart ? String(activityStart) : (() => {
+      const threeMonthsAgo = new Date();
+      threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+      return threeMonthsAgo.toLocaleString('en-NZ', {
+        month: 'short',
+        timeZone: 'Pacific/Auckland'
+      });
+    })();
 
     const unavailableLabel = noData
       ? `<text x="${width / 2}" y="12" text-anchor="middle" dominant-baseline="middle" fill="var(--text-muted)" font-size="9" font-family="-apple-system, BlinkMacSystemFont, sans-serif">data unavailable</text>`
       : '';
 
     return `<div class="sparkline-wrap">
-                                          <svg class="sparkline" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" fill="none" role="img" aria-label="${noData ? 'Activity data unavailable' : '13 weeks of commit activity'}">
+                                          <svg class="sparkline" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" fill="none" role="img" aria-label="${noData ? 'Activity data unavailable' : 'Lifetime code activity'}">
                                             <path d="${pathD}" fill="rgba(0,90,225,${fillOpacity})" stroke="none"/>
                                             <polyline points="${polylinePoints}" stroke="#005ae1" stroke-width="1.5" fill="none" stroke-linejoin="round" stroke-linecap="round"${strokeOpacity}/>
                                             ${unavailableLabel}
                                           </svg>
-                                          <div class="sparkline-range"><span>${monthLabel}</span><span>now</span></div>
+                                          <div class="sparkline-range"><span>${this.escapeHtml(startLabel)}</span><span>now</span></div>
                                         </div>`;
   }
 
@@ -236,7 +245,7 @@ class StaticHTMLGenerator {
                   <span class="visually-hidden">Version: </span>${versionBadge}
                 </div>
                 <div class="module-activity-section">
-                  <span class="visually-hidden">Commit activity: </span>${this.generateSparkline(module.activity)}
+                  <span class="visually-hidden">Code activity: </span>${this.generateSparkline(module.activity, module.activityStart)}
                 </div>
               </article>
             </a>`;

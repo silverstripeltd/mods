@@ -54,4 +54,5 @@ GitHub Actions workflow (`.github/workflows/deploy.yml`) runs daily at 17:00 UTC
 
 ## Working rules
 
+- **All text must meet WCAG 2.2 AA contrast guidelines.** Minimum contrast ratio of 4.5:1 for normal text, 3:1 for large text. Use `var(--text-muted)` (`#666`) not `var(--text-light)` (`#999`) for secondary text on white backgrounds. `#999` on white is only 2.8:1 and fails AA.
 - **Pre-release demos must use fresh data.** Before showing a built site for visual review, always run the full pipeline (`node --env-file=.env scripts/fetch-modules.js && node scripts/build.js`) so the demo reflects real, current data — not stale or missing fields from a previous fetch.

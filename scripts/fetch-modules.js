@@ -347,7 +347,8 @@ class ModuleFetcher {
         url: repo.html_url,
         published: publishedDate,
         version: await this.getLatestVersion(repo),
-        activity: []
+        activity: [],
+        activityStart: repo.created_at ? new Date(repo.created_at).getFullYear() : null
       };
     } catch (error) {
       console.warn(`Failed to extract data for ${repo.full_name}: ${error.message}`);
@@ -388,25 +389,47 @@ class ModuleFetcher {
   }
 
   /**
-   * Fetch commit activity for all modules using a two-pass approach.
-   * Pass 1: Fire all stats requests in parallel to warm GitHub's cache (most return 202).
-   * Pass 2: After a delay, collect the now-computed results.
+   * Downsample an array of weekly values to a target number of points.
+   * Averages consecutive weeks into buckets for a readable sparkline.
+   * @param {number[]} weeks - Array of weekly values
+   * @param {number} targetPoints - Desired number of output points
+   * @returns {number[]} Downsampled array
+   */
+  downsample(weeks, targetPoints = 52) {
+    if (weeks.length <= targetPoints) return weeks;
+
+    const bucketSize = weeks.length / targetPoints;
+    const result = [];
+    for (let i = 0; i < targetPoints; i++) {
+      const start = Math.floor(i * bucketSize);
+      const end = Math.floor((i + 1) * bucketSize);
+      const bucket = weeks.slice(start, end);
+      const sum = bucket.reduce((a, b) => a + b, 0);
+      result.push(Math.round(sum / bucket.length));
+    }
+    return result;
+  }
+
+  /**
+   * Fetch lifetime code frequency for all modules using a two-pass approach.
+   * Uses /stats/code_frequency which returns weekly additions/deletions for the
+   * entire repo lifetime. Pass 1 warms GitHub's cache, pass 2 collects results.
    * @param {Array} modules - Array of module objects with url property
-   * @returns {Promise<void>} Mutates each module's activity property in place
+   * @returns {Promise<void>} Mutates each module's activity and activityStart properties
    */
   async fetchActivityBulk(modules) {
     // Extract GitHub owner/repo from each module's URL
     const githubModules = modules.filter(m => m.url && m.url.includes('github.com'));
     if (githubModules.length === 0) return;
 
-    console.log(`\n📊 Fetching activity data for ${githubModules.length} modules (two-pass)...`);
+    console.log(`\n📊 Fetching lifetime activity for ${githubModules.length} modules (two-pass)...`);
 
     // Build URL map: module → stats URL
     const urlMap = new Map();
     for (const mod of githubModules) {
       const match = mod.url.match(/github\.com\/([^\/]+\/[^\/]+)/);
       if (match) {
-        urlMap.set(mod, `${GITHUB_API_BASE}/repos/${match[1]}/stats/commit_activity`);
+        urlMap.set(mod, `${GITHUB_API_BASE}/repos/${match[1]}/stats/code_frequency`);
       }
     }
 
@@ -417,7 +440,6 @@ class ModuleFetcher {
       try {
         const response = await this.rateLimitedFetch(url);
         if (response.ok && response.status !== 202) {
-          // Already cached — grab the data now
           const data = await response.json();
           if (Array.isArray(data)) {
             warmResults.set(mod, data);
@@ -455,10 +477,19 @@ class ModuleFetcher {
     }
 
     // Apply results to modules
+    // code_frequency returns [[timestamp, additions, deletions], ...]
     for (const [mod, data] of warmResults) {
-      const weeks = data.map(w => w.total);
-      while (weeks.length < 13) weeks.unshift(0);
-      mod.activity = weeks.slice(-13);
+      if (data.length === 0) continue;
+
+      // Total churn per week (additions + |deletions|)
+      const weeks = data.map(entry => entry[1] + Math.abs(entry[2]));
+
+      // Extract start year from the first entry's timestamp
+      const startTimestamp = data[0][0];
+      mod.activityStart = new Date(startTimestamp * 1000).getFullYear();
+
+      // Downsample to ~52 points for a readable sparkline
+      mod.activity = this.downsample(weeks);
     }
   }
 

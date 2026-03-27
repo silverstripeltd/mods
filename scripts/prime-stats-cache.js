@@ -87,7 +87,7 @@ async function main() {
   let primed = 0;
   for (const fullName of repos) {
     try {
-      const url = `${GITHUB_API_BASE}/repos/${fullName}/stats/commit_activity`;
+      const url = `${GITHUB_API_BASE}/repos/${fullName}/stats/code_frequency`;
       await fetch(url, { headers });
       primed++;
       await sleep(100); // rate limiting
