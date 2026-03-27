@@ -117,9 +117,11 @@ class StaticHTMLGenerator {
     const height = 28;
     const padding = 2;
 
-    // Default to empty if no data; pad to 13 if shorter
+    // Default to empty if no data; copy and pad to 13 if shorter
     if (!activity || activity.length === 0) {
       activity = new Array(13).fill(0);
+    } else {
+      activity = activity.slice(); // avoid mutating caller's data
     }
     while (activity.length < 13) activity.unshift(0);
 
