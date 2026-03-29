@@ -541,19 +541,17 @@ body::before {
   }
 }
 
-@media (max-width: 567px) {
+@media (max-width: 600px) {
   .modules-header,
   .module-content {
-    grid-template-columns: 2fr 3fr 120px;
+    grid-template-columns: 2fr 3fr;
   }
 
   .header-version,
-  .module-version-section {
-    display: none;
-  }
-
-  .sparkline-range {
-    display: none;
+  .module-version-section,
+  .header-activity,
+  .module-activity-section {
+    display: none !important;
   }
 
   .modules-header > div,
