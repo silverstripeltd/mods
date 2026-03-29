@@ -51,6 +51,16 @@ jobs:
           echo "Installing build dependencies"
           npm ci
 
+      - name: Prime GitHub stats cache
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/prime-stats-cache.js
+
+      - name: Wait for stats computation
+        run: |
+          echo "Waiting 60s for GitHub to compute stats..."
+          sleep 60
+
       - name: Build site
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
