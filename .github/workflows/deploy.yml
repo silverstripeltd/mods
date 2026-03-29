@@ -58,8 +58,8 @@ jobs:
 
       - name: Wait for stats computation
         run: |
-          echo "Waiting 120s for GitHub to compute stats..."
-          sleep 120
+          echo "Waiting 30s for GitHub to compute stats..."
+          sleep 30
 
       - name: Build site
         env:

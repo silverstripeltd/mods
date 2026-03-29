@@ -433,34 +433,23 @@ class ModuleFetcher {
       }
     }
 
-    // Pass 1: Warm the cache — fire all requests, accept 202s
-    console.log('   Pass 1: Warming stats cache...');
+    const MAX_PASSES = 4;
+    const PASS_DELAY = 10000; // 10s between passes
+    const TARGET_RATIO = 0.85; // stop once 85% collected
+
     const warmResults = new Map();
-    for (const [mod, url] of urlMap) {
-      try {
-        const response = await this.rateLimitedFetch(url);
-        if (response.ok && response.status !== 202) {
-          const data = await response.json();
-          if (Array.isArray(data)) {
-            warmResults.set(mod, data);
-          }
-        }
-      } catch (error) {
-        // Ignore — we'll retry in pass 2
+
+    for (let pass = 1; pass <= MAX_PASSES; pass++) {
+      const pending = [...urlMap.entries()].filter(([mod]) => !warmResults.has(mod));
+      if (pending.length === 0) break;
+
+      if (pass > 1) {
+        console.log(`   Waiting ${PASS_DELAY / 1000}s for GitHub to compute ${pending.length} remaining...`);
+        await this.sleep(PASS_DELAY);
       }
-    }
 
-    console.log(`   ${warmResults.size}/${urlMap.size} already cached`);
-
-    // Only do pass 2 if there are uncached modules
-    const uncached = [...urlMap.entries()].filter(([mod]) => !warmResults.has(mod));
-    if (uncached.length > 0) {
-      console.log(`   Waiting 8s for GitHub to compute ${uncached.length} remaining...`);
-      await this.sleep(8000);
-
-      // Pass 2: Collect results for previously-uncached modules
-      console.log('   Pass 2: Collecting activity data...');
-      for (const [mod, url] of uncached) {
+      console.log(`   Pass ${pass}: Fetching ${pending.length} modules...`);
+      for (const [mod, url] of pending) {
         try {
           const response = await this.rateLimitedFetch(url);
           if (response.ok && response.status !== 202) {
@@ -470,10 +459,17 @@ class ModuleFetcher {
             }
           }
         } catch (error) {
-          // Module keeps activity: []
+          // Will retry on next pass
         }
       }
-      console.log(`   ${warmResults.size}/${urlMap.size} total collected`);
+
+      const ratio = warmResults.size / urlMap.size;
+      console.log(`   ${warmResults.size}/${urlMap.size} collected (${Math.round(ratio * 100)}%)`);
+
+      if (ratio >= TARGET_RATIO) {
+        console.log(`   Hit ${Math.round(TARGET_RATIO * 100)}% target, stopping`);
+        break;
+      }
     }
 
     // Apply results to modules
