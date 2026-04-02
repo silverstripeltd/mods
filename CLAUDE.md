@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Silverstripe Mods is a static GitHub Pages site that displays Silverstripe modules published in the last 7 days. It updates daily via GitHub Actions, fetching data from GitHub and Packagist APIs, then generating static HTML with all data embedded at build time (zero client-side JavaScript for data). Includes an RSS feed at `/feed.xml`.
+Silverstripe Mods is a static GitHub Pages site that displays Silverstripe modules published in the last 7 days. It updates three times daily via GitHub Actions (01:00, 09:00, 17:00 UTC), fetching data from GitHub and Packagist APIs, then generating static HTML with all data embedded at build time (zero client-side JavaScript for data). Includes an RSS feed at `/feed.xml`.
 
 ## Commands
 
@@ -50,7 +50,7 @@ The build pipeline is a sequential Node.js process using ES modules (`"type": "m
 
 ### Deployment
 
-GitHub Actions workflow (`.github/workflows/deploy.yml`) runs daily at 17:00 UTC (5 AM NZST), on push to main, or manual dispatch. Uses `GITHUB_TOKEN` for API access. Deploys `dist/` to GitHub Pages.
+GitHub Actions workflow (`.github/workflows/deploy.yml`) runs three times daily at 01:00, 09:00, 17:00 UTC (2 PM, 10 PM, 6 AM NZST), on push to main, or manual dispatch. Uses `GITHUB_TOKEN` for API access. Deploys `dist/` to GitHub Pages.
 
 ## Working rules
 

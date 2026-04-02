@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sparkline Activity Mockup — Silverstripe Mods</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --ss-blue-light: rgb(8% 37% 91%);
+            --ss-blue: #005ae1;
+            --ss-blue-dark: #004bc9;
+            --ss-blue-darker: #003a9e;
+            --hover-bg: #f5f7fa;
+            --text-dark: #333;
+            --text-muted: #666;
+            --text-light: #999;
+            --border-light: #e0e0e0;
+            --bg-white: #ffffff;
+            --bg-light: #f8f9fa;
+            --shadow: 0 2px 4px rgba(0,0,0,0.1);
+            --shadow-hover: 0 4px 8px rgba(0,0,0,0.15);
+            --radius: 8px;
+            --transition: all 0.2s ease;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            background-color: var(--bg-light);
+        }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
+        /* Header */
+        .site-header {
+            background: var(--ss-blue);
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .site-header h1 { font-size: 2.5rem; font-weight: 700; margin-bottom: 0.5rem; }
+        .subtitle { font-size: 1.1rem; opacity: 0.9; font-weight: 400; }
+
+        .main-content { padding: 3rem 0; }
+
+        /* Date groups */
+        .date-group { margin-bottom: 2rem; }
+        .date-group-heading {
+            font-size: 1.4rem; font-weight: 600; color: var(--text-dark);
+            margin-bottom: 0.5rem; display: flex; align-items: baseline; gap: 0.5rem;
+        }
+        .date-group-heading .date-count { font-weight: 400; font-size: 0.85rem; color: var(--text-light); }
+
+        /* Modules container */
+        .modules-container {
+            background: var(--bg-white); border-radius: var(--radius);
+            box-shadow: var(--shadow); overflow: hidden;
+        }
+        .modules-wrapper { overflow-x: auto; }
+        .modules-list { width: 100%; font-size: 0.95rem; }
+        .modules-grid { display: flex; flex-direction: column; }
+
+        /* Header row */
+        .modules-header {
+            background: var(--hover-bg);
+            display: grid;
+            grid-template-columns: 2fr 3fr 100px 140px;
+            gap: 0; border-bottom: 2px solid var(--border-light);
+        }
+        .modules-header > div {
+            padding: 1rem; font-weight: 600; color: var(--text-dark); font-size: 0.95rem;
+        }
+
+        /* Module rows */
+        .module-item {
+            border-bottom: 1px solid var(--border-light);
+            transition: var(--transition); text-decoration: none; color: inherit; display: block;
+        }
+        .module-item:hover {
+            background-color: var(--hover-bg); transform: translateY(-2px); box-shadow: var(--shadow-hover);
+        }
+        .module-item:last-child { border-bottom: none; }
+
+        .module-content {
+            display: grid;
+            grid-template-columns: 2fr 3fr 100px 140px;
+            gap: 0; cursor: pointer;
+        }
+        .module-content > div {
+            padding: 1rem; font-size: 0.95rem; line-height: 1.4;
+            display: flex; align-items: flex-start;
+        }
+
+        /* Module name */
+        .module-name {
+            font-weight: 400; color: var(--text-dark); font-size: 0.95rem;
+            display: flex; flex-direction: column; align-items: flex-start; gap: 0.2rem;
+        }
+        .module-name-vendor {
+            font-size: 0.75rem; color: var(--text-muted); font-weight: normal;
+            display: flex; align-items: center; gap: 0.3rem;
+        }
+        .module-name-vendor::before {
+            content: ''; width: 16px; height: 16px;
+            background-image: var(--org-avatar); background-size: cover;
+            border-radius: 2px; flex-shrink: 0;
+        }
+        .module-name-package {
+            font-size: 1.05rem; color: var(--ss-blue); font-weight: 500;
+            line-height: 1.3; padding-left: 0.3rem;
+        }
+
+        .module-description { color: var(--text-muted); line-height: 1.4; max-width: 400px; font-size: 0.95rem; }
+
+        /* Version badges */
+        .version-badge {
+            display: inline-block; background: var(--ss-blue); color: white;
+            padding: 0.25rem 0.5rem; margin-top: 0.1rem; border-radius: 4px;
+            font-size: 0.75rem; font-weight: 500; line-height: 1;
+        }
+        .version-badge.no-version { background: var(--text-light); }
+
+        /* ============================================================
+           SPARKLINE — the new bit
+           ============================================================ */
+        .module-activity-section {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+        }
+
+        .sparkline-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .sparkline { display: block; }
+
+        .sparkline-range {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.6rem;
+            color: var(--text-light);
+            letter-spacing: 0.01em;
+            line-height: 1;
+        }
+
+
+        /* ============================================================
+           MOCKUP LEGEND
+           ============================================================ */
+        .mockup-legend {
+            margin: 2rem 0;
+            padding: 1.5rem;
+            background: var(--bg-white);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+        .mockup-legend h3 { color: var(--text-dark); margin-bottom: 0.75rem; font-size: 1rem; }
+        .mockup-legend p { margin-bottom: 0.5rem; }
+        .mockup-legend code {
+            background: var(--hover-bg); padding: 0.15rem 0.4rem; border-radius: 3px;
+            font-size: 0.85em;
+        }
+
+        .legend-examples {
+            display: flex;
+            gap: 2rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+        .legend-example {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .legend-example span { font-size: 0.85rem; color: var(--text-muted); }
+
+        /* Comparison section */
+        .comparison { margin: 2rem 0; }
+        .comparison h3 { font-size: 1.1rem; margin-bottom: 1rem; color: var(--text-dark); }
+        .comparison-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+        .comparison-card {
+            background: var(--bg-white); border-radius: var(--radius); box-shadow: var(--shadow);
+            padding: 1.5rem;
+        }
+        .comparison-card h4 { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.75rem; }
+
+        @media (max-width: 768px) {
+            .modules-header, .module-content {
+                grid-template-columns: 1.5fr 2fr 90px 120px;
+            }
+            .comparison-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <header class="site-header">
+        <div class="container">
+            <h1>Silverstripe Mods</h1>
+            <p class="subtitle">Silverstripe module releases from the last 7 days</p>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="container">
+
+            <!-- ========== LEGEND ========== -->
+            <div class="mockup-legend">
+                <h3>Mockup: Activity sparkline replacing the date column</h3>
+                <p>Each row now shows a <strong>13-week (3 month) commit activity sparkline</strong> instead of a release date. The sparkline is a build-time inline SVG &mdash; zero client-side JavaScript. Hover for the release date tooltip.</p>
+                <div class="legend-examples">
+                    <div class="legend-example">
+                        <svg width="100" height="24" viewBox="0 0 100 24" fill="none">
+                            <path d="M0,24 L0,8 L8.3,10 L16.7,6 L25,9 L33.3,4 L41.7,7 L50,5 L58.3,8 L66.7,3 L75,7 L83.3,5 L91.7,6 L100,4 L100,24Z" fill="rgba(0,90,225,0.12)" stroke="none"/>
+                            <polyline points="0,8 8.3,10 16.7,6 25,9 33.3,4 41.7,7 50,5 58.3,8 66.7,3 75,7 83.3,5 91.7,6 100,4" stroke="#005ae1" stroke-width="1.5" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+                        </svg>
+                        <span>Actively maintained</span>
+                    </div>
+                    <div class="legend-example">
+                        <svg width="100" height="24" viewBox="0 0 100 24" fill="none">
+                            <path d="M0,24 L0,23 L8.3,23 L16.7,24 L25,23 L33.3,24 L41.7,24 L50,23 L58.3,24 L66.7,24 L75,24 L83.3,23 L91.7,18 L100,4 L100,24Z" fill="rgba(0,90,225,0.12)" stroke="none"/>
+                            <polyline points="0,23 8.3,23 16.7,24 25,23 33.3,24 41.7,24 50,23 58.3,24 66.7,24 75,24 83.3,23 91.7,18 100,4" stroke="#005ae1" stroke-width="1.5" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+                        </svg>
+                        <span>One-off update</span>
+                    </div>
+                    <div class="legend-example">
+                        <svg width="100" height="24" viewBox="0 0 100 24" fill="none">
+                            <path d="M0,24 L0,23 L8.3,24 L16.7,23 L25,24 L33.3,24 L41.7,23 L50,24 L58.3,24 L66.7,23 L75,24 L83.3,24 L91.7,23 L100,24 L100,24Z" fill="rgba(0,90,225,0.06)" stroke="none"/>
+                            <polyline points="0,23 8.3,24 16.7,23 25,24 33.3,24 41.7,23 50,24 58.3,24 66.7,23 75,24 83.3,24 91.7,23 100,24" stroke="#005ae1" stroke-width="1.5" fill="none" stroke-linejoin="round" stroke-linecap="round" opacity="0.3"/>
+                        </svg>
+                        <span>Dormant / no commits</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========== TODAY GROUP ========== -->
+            <section class="date-group group-today">
+                <h2 class="date-group-heading">
+                    Today
+                    <span class="date-count">3 modules</span>
+                </h2>
+                <div class="modules-container">
+                    <div class="modules-wrapper">
+                        <div class="modules-list">
+                            <div class="modules-header" aria-hidden="true">
+                                <div class="header-name">Module Name</div>
+                                <div class="header-description">Description</div>
+                                <div class="header-version">Version</div>
+                                <div class="header-activity">Activity</div>
+                            </div>
+                            <div class="modules-grid">
+
+                                <!-- Actively maintained module -->
+                                <a href="#" class="module-item">
+                                    <article class="module-content">
+                                        <div class="module-name-section">
+                                            <div class="module-name">
+                                                <span class="module-name-vendor" style="--org-avatar: url('https://github.com/silverstripe.png?size=32')">silverstripe</span>
+                                                <span class="module-name-package">/asset-admin</span>
+                                            </div>
+                                        </div>
+                                        <div class="module-description-section">
+                                            <div class="module-description">Asset management for the SilverStripe CMS</div>
+                                        </div>
+                                        <div class="module-version-section">
+                                            <span class="version-badge">3.1.8</span>
+                                        </div>
+                                        <div class="module-activity-section">
+                                            <div class="sparkline-wrap">
+                                                <svg class="sparkline" width="110" height="28" viewBox="0 0 110 28" fill="none" role="img" aria-label="13 weeks of commit activity — consistently active">
+                                                    <path d="M0,28 L0,12 L9.2,14 L18.3,8 L27.5,11 L36.7,6 L45.8,10 L55,7 L64.2,12 L73.3,5 L82.5,9 L91.7,7 L100.8,8 L110,6 L110,28Z" fill="rgba(0,90,225,0.10)" stroke="none"/>
+                                                    <polyline points="0,12 9.2,14 18.3,8 27.5,11 36.7,6 45.8,10 55,7 64.2,12 73.3,5 82.5,9 91.7,7 100.8,8 110,6" stroke="#005ae1" stroke-width="1.5" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+                                                </svg>
+                                                <div class="sparkline-range"><span>Dec</span><span>now</span></div>
+                                            </div>
+                                        </div>
+                                    </article>
+                                </a>
+
+                                <!-- Burst of recent activity -->
+                                <a href="#" class="module-item">
+                                    <article class="module-content">
+                                        <div class="module-name-section">
+                                            <div class="module-name">
+                                                <span class="module-name-vendor" style="--org-avatar: url('https://github.com/wedevelopnl.png?size=32')">wedevelopnl</span>
+                                                <span class="module-name-package">/silverstripe-grid</span>
+                                            </div>
+                                        </div>
+                                        <div class="module-description-section">
+                                            <div class="module-description">Grid-based content block system for SilverStripe</div>
+                                        </div>
+                                        <div class="module-version-section">
+                                            <span class="version-badge no-version">-</span>
+                                        </div>
+                                        <div class="module-activity-section">
+                                            <div class="sparkline-wrap">
+                                                <svg class="sparkline" width="110" height="28" viewBox="0 0 110 28" fill="none" role="img" aria-label="13 weeks of commit activity — recent burst">
+                                                    <path d="M0,28 L0,24 L9.2,25 L18.3,24 L27.5,25 L36.7,24 L45.8,25 L55,22 L64.2,18 L73.3,12 L82.5,8 L91.7,5 L100.8,4 L110,3 L110,28Z" fill="rgba(0,90,225,0.10)" stroke="none"/>
+                                                    <polyline points="0,24 9.2,25 18.3,24 27.5,25 36.7,24 45.8,25 55,22 64.2,18 73.3,12 82.5,8 91.7,5 100.8,4 110,3" stroke="#005ae1" stroke-width="1.5" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+                                                </svg>
+                                                <div class="sparkline-range"><span>Dec</span><span>now</span></div>
+                                            </div>
+                                        </div>
+                                    </article>
+                                </a>
+
+                                <!-- One-off update, dormant before -->
+                                <a href="#" class="module-item">
+                                    <article class="module-content">
+                                        <div class="module-name-section">
+                                            <div class="module-name">
+                                                <span class="module-name-vendor" style="--org-avatar: url('https://github.com/sunnysideup.png?size=32')">sunnysideup</span>
+                                                <span class="module-name-package">/max-upload-size-increaser</span>
+                                            </div>
+                                        </div>
+                                        <div class="module-description-section">
+                                            <div class="module-description">Increase the max file size that can be uploaded.</div>
+                                        </div>
+                                        <div class="module-version-section">
+                                            <span class="version-badge no-version">-</span>
+                                        </div>
+                                        <div class="module-activity-section">
+                                            <div class="sparkline-wrap">
+                                                <svg class="sparkline" width="110" height="28" viewBox="0 0 110 28" fill="none" role="img" aria-label="13 weeks of commit activity — single recent spike">
+                                                    <path d="M0,28 L0,26 L9.2,27 L18.3,26 L27.5,27 L36.7,27 L45.8,26 L55,27 L64.2,27 L73.3,26 L82.5,27 L91.7,26 L100.8,20 L110,6 L110,28Z" fill="rgba(0,90,225,0.10)" stroke="none"/>
+                                                    <polyline points="0,26 9.2,27 18.3,26 27.5,27 36.7,27 45.8,26 55,27 64.2,27 73.3,26 82.5,27 91.7,26 100.8,20 110,6" stroke="#005ae1" stroke-width="1.5" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+                                                </svg>
+                                                <div class="sparkline-range"><span>Dec</span><span>now</span></div>
+                                            </div>
+                                        </div>
+                                    </article>
+                                </a>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ========== YESTERDAY GROUP ========== -->
+            <section class="date-group group-yesterday">
+                <h2 class="date-group-heading">
+                    Yesterday
+                    <span class="date-count">3 modules</span>
+                </h2>
+                <div class="modules-container">
+                    <div class="modules-wrapper">
+                        <div class="modules-list">
+                            <div class="modules-grid">
+
+                                <!-- Steadily active -->
+                                <a href="#" class="module-item">
+                                    <article class="module-content">
+                                        <div class="module-name-section">
+                                            <div class="module-name">
+                                                <span class="module-name-vendor" style="--org-avatar: url('https://github.com/silverstripe.png?size=32')">silverstripe</span>
+                                                <span class="module-name-package">/siteconfig</span>
+                                            </div>
+                                        </div>
+                                        <div class="module-description-section">
+                                            <div class="module-description">Site wide settings administration.</div>
+                                        </div>
+                                        <div class="module-version-section">
+                                            <span class="version-badge">6.1.1</span>
+                                        </div>
+                                        <div class="module-activity-section">
+                                            <div class="sparkline-wrap">
+                                                <svg class="sparkline" width="110" height="28" viewBox="0 0 110 28" fill="none" role="img" aria-label="13 weeks of commit activity — steady">
+                                                    <path d="M0,28 L0,10 L9.2,13 L18.3,9 L27.5,15 L36.7,11 L45.8,8 L55,12 L64.2,10 L73.3,14 L82.5,9 L91.7,11 L100.8,10 L110,8 L110,28Z" fill="rgba(0,90,225,0.10)" stroke="none"/>
+                                                    <polyline points="0,10 9.2,13 18.3,9 27.5,15 36.7,11 45.8,8 55,12 64.2,10 73.3,14 82.5,9 91.7,11 100.8,10 110,8" stroke="#005ae1" stroke-width="1.5" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+                                                </svg>
+                                                <div class="sparkline-range"><span>Dec</span><span>now</span></div>
+                                            </div>
+                                        </div>
+                                    </article>
+                                </a>
+
+                                <!-- Sporadic / occasional -->
+                                <a href="#" class="module-item">
+                                    <article class="module-content">
+                                        <div class="module-name-section">
+                                            <div class="module-name">
+                                                <span class="module-name-vendor" style="--org-avatar: url('https://github.com/WPP-Public.png?size=32')">heyday</span>
+                                                <span class="module-name-package">/silverstripe-adaptivecontent</span>
+                                            </div>
+                                        </div>
+                                        <div class="module-description-section">
+                                            <div class="module-description">SilverStripe Adaptive Content</div>
+                                        </div>
+                                        <div class="module-version-section">
+                                            <span class="version-badge">4.1.2</span>
+                                        </div>
+                                        <div class="module-activity-section">
+                                            <div class="sparkline-wrap">
+                                                <svg class="sparkline" width="110" height="28" viewBox="0 0 110 28" fill="none" role="img" aria-label="13 weeks of commit activity — sporadic">
+                                                    <path d="M0,28 L0,25 L9.2,14 L18.3,24 L27.5,25 L36.7,26 L45.8,18 L55,25 L64.2,26 L73.3,25 L82.5,20 L91.7,25 L100.8,14 L110,8 L110,28Z" fill="rgba(0,90,225,0.10)" stroke="none"/>
+                                                    <polyline points="0,25 9.2,14 18.3,24 27.5,25 36.7,26 45.8,18 55,25 64.2,26 73.3,25 82.5,20 91.7,25 100.8,14 110,8" stroke="#005ae1" stroke-width="1.5" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+                                                </svg>
+                                                <div class="sparkline-range"><span>Dec</span><span>now</span></div>
+                                            </div>
+                                        </div>
+                                    </article>
+                                </a>
+
+                                <!-- Completely dormant — near-flat line -->
+                                <a href="#" class="module-item">
+                                    <article class="module-content">
+                                        <div class="module-name-section">
+                                            <div class="module-name">
+                                                <span class="module-name-vendor" style="--org-avatar: url('https://github.com/tractorcow.png?size=32')">tractorcow</span>
+                                                <span class="module-name-package">/silverstripe-fluent</span>
+                                            </div>
+                                        </div>
+                                        <div class="module-description-section">
+                                            <div class="module-description">Multi-language translate module for Silverstripe</div>
+                                        </div>
+                                        <div class="module-version-section">
+                                            <span class="version-badge">7.0.3</span>
+                                        </div>
+                                        <div class="module-activity-section">
+                                            <div class="sparkline-wrap">
+                                                <svg class="sparkline" width="110" height="28" viewBox="0 0 110 28" fill="none" role="img" aria-label="13 weeks of commit activity — dormant">
+                                                    <path d="M0,28 L0,26 L9.2,27 L18.3,26 L27.5,27 L36.7,27 L45.8,26 L55,27 L64.2,27 L73.3,27 L82.5,26 L91.7,27 L100.8,27 L110,26 L110,28Z" fill="rgba(0,90,225,0.06)" stroke="none"/>
+                                                    <polyline points="0,26 9.2,27 18.3,26 27.5,27 36.7,27 45.8,26 55,27 64.2,27 73.3,27 82.5,26 91.7,27 100.8,27 110,26" stroke="#005ae1" stroke-width="1.5" fill="none" stroke-linejoin="round" stroke-linecap="round" opacity="0.3"/>
+                                                </svg>
+                                                <div class="sparkline-range"><span>Dec</span><span>now</span></div>
+                                            </div>
+                                        </div>
+                                    </article>
+                                </a>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ========== WEDNESDAY GROUP ========== -->
+            <section class="date-group">
+                <h2 class="date-group-heading">
+                    Wednesday
+                    <span class="date-count">2 modules</span>
+                </h2>
+                <div class="modules-container">
+                    <div class="modules-wrapper">
+                        <div class="modules-list">
+                            <div class="modules-grid">
+
+                                <!-- High activity tapering off -->
+                                <a href="#" class="module-item">
+                                    <article class="module-content">
+                                        <div class="module-name-section">
+                                            <div class="module-name">
+                                                <span class="module-name-vendor" style="--org-avatar: url('https://github.com/dnadesign.png?size=32')">dnadesign</span>
+                                                <span class="module-name-package">/silverstripe-elemental</span>
+                                            </div>
+                                        </div>
+                                        <div class="module-description-section">
+                                            <div class="module-description">Content blocks for the SilverStripe CMS</div>
+                                        </div>
+                                        <div class="module-version-section">
+                                            <span class="version-badge">5.3.0</span>
+                                        </div>
+                                        <div class="module-activity-section">
+                                            <div class="sparkline-wrap">
+                                                <svg class="sparkline" width="110" height="28" viewBox="0 0 110 28" fill="none" role="img" aria-label="13 weeks of commit activity — high then tapering">
+                                                    <path d="M0,28 L0,3 L9.2,5 L18.3,4 L27.5,7 L36.7,6 L45.8,10 L55,9 L64.2,14 L73.3,16 L82.5,18 L91.7,20 L100.8,22 L110,21 L110,28Z" fill="rgba(0,90,225,0.10)" stroke="none"/>
+                                                    <polyline points="0,3 9.2,5 18.3,4 27.5,7 36.7,6 45.8,10 55,9 64.2,14 73.3,16 82.5,18 91.7,20 100.8,22 110,21" stroke="#005ae1" stroke-width="1.5" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+                                                </svg>
+                                                <div class="sparkline-range"><span>Dec</span><span>now</span></div>
+                                            </div>
+                                        </div>
+                                    </article>
+                                </a>
+
+                                <!-- Two distinct bursts -->
+                                <a href="#" class="module-item">
+                                    <article class="module-content">
+                                        <div class="module-name-section">
+                                            <div class="module-name">
+                                                <span class="module-name-vendor" style="--org-avatar: url('https://github.com/bigfork.png?size=32')">bigfork</span>
+                                                <span class="module-name-package">/silverstripe-oauth-login</span>
+                                            </div>
+                                        </div>
+                                        <div class="module-description-section">
+                                            <div class="module-description">OAuth2 authentication handler for SilverStripe</div>
+                                        </div>
+                                        <div class="module-version-section">
+                                            <span class="version-badge">3.2.0</span>
+                                        </div>
+                                        <div class="module-activity-section">
+                                            <div class="sparkline-wrap">
+                                                <svg class="sparkline" width="110" height="28" viewBox="0 0 110 28" fill="none" role="img" aria-label="13 weeks of commit activity — two bursts">
+                                                    <path d="M0,28 L0,25 L9.2,8 L18.3,6 L27.5,10 L36.7,24 L45.8,25 L55,24 L64.2,25 L73.3,24 L82.5,10 L91.7,5 L100.8,8 L110,24 L110,28Z" fill="rgba(0,90,225,0.10)" stroke="none"/>
+                                                    <polyline points="0,25 9.2,8 18.3,6 27.5,10 36.7,24 45.8,25 55,24 64.2,25 73.3,24 82.5,10 91.7,5 100.8,8 110,24" stroke="#005ae1" stroke-width="1.5" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+                                                </svg>
+                                                <div class="sparkline-range"><span>Dec</span><span>now</span></div>
+                                            </div>
+                                        </div>
+                                    </article>
+                                </a>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <footer style="background: var(--bg-white); border-top: 1px solid var(--border-light); padding: 2rem 0; text-align: center; margin-top: 2rem;">
+        <div class="container">
+            <p style="color: var(--text-muted); font-size: 0.9rem;">
+                MOCKUP — sparkline activity graph replacing date column
+            </p>
+        </div>
+    </footer>
+</body>
+</html>

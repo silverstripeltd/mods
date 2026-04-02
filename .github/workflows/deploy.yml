@@ -2,9 +2,9 @@
 name: Build and Deploy to GitHub Pages
 
 on:
-  # Run daily at 5:00 AM NZST (17:00 UTC)
+  # Run three times daily to catch release peaks (01:00, 09:00, 17:00 UTC)
   schedule:
-    - cron: '0 17 * * *'
+    - cron: '0 1,9,17 * * *'
 
   # Run on push to main branch
   push:

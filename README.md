@@ -1,10 +1,10 @@
 # Silverstripe Mods
 
-A GitHub Pages site that automatically displays the latest 20 Silverstripe modules in a clean, responsive table format. The site updates daily via GitHub Actions and shows module names, descriptions, repository links, and publication dates. Includes an RSS feed for easy subscription to new modules.
+A GitHub Pages site that automatically displays the latest 20 Silverstripe modules in a clean, responsive table format. The site updates three times daily via GitHub Actions and shows module names, descriptions, repository links, and publication dates. Includes an RSS feed for easy subscription to new modules.
 
 ## 🚀 Features
 
-- **Automated Updates**: Daily GitHub Actions workflow fetches the latest Silverstripe modules
+- **Automated Updates**: GitHub Actions workflow fetches the latest Silverstripe modules three times daily
 - **RSS Feed**: Subscribe to new modules via `/feed.xml`
 - **Static HTML**: Fast loading with zero JavaScript - all data embedded at build time
 - **Fast Loading**: Optimized for performance with minimal payload
@@ -101,7 +101,7 @@ npx serve dist
 
 The GitHub Actions workflow (`.github/workflows/deploy.yml`):
 
-- **Triggers**: Daily at 6:00 AM UTC, on pushes to `main`, and manual triggers
+- **Triggers**: Three times daily at 01:00, 09:00, 17:00 UTC, on pushes to `main`, and manual triggers
 - **Uses**: Built-in `GITHUB_TOKEN` (no secrets required)
 - **Deploys**: To GitHub Pages using official actions
 - **Generates**: RSS feed at `/feed.xml` with latest modules
@@ -144,7 +144,7 @@ Your site will be available at: `https://username.github.io/repository-name`
 
 - **Pages not enabled**: Check repository Settings → Pages → Source = "GitHub Actions"
 - **Workflow failing**: Check Actions tab for detailed error logs
-- **Site not updating**: Workflow runs daily at 6 AM UTC, or push to `main` branch
+- **Site not updating**: Workflow runs three times daily at 01:00, 09:00, 17:00 UTC, or push to `main` branch
 
 ### Local Development
 

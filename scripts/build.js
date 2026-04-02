@@ -126,7 +126,7 @@ function generateRSSFile() {
   // Site configuration for RSS feed metadata
   const siteConfig = {
     title: 'Silverstripe Mods',
-    description: 'Latest Silverstripe module releases, updated daily',
+    description: 'Latest Silverstripe module releases',
     siteUrl: 'https://silverstripeltd.github.io/mods',
     email: 'noreply@silverstripeltd.github.io'
   };

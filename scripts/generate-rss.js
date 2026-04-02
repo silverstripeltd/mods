@@ -205,7 +205,7 @@ export function generateRSSFeed(modules, outputPath, siteConfig = {}) {
   // Default configuration for RSS feed metadata
   const defaultConfig = {
     title: 'Silverstripe Mods',
-    description: 'Latest Silverstripe module releases, updated daily',
+    description: 'Latest Silverstripe module releases',
     siteUrl: 'https://silverstripeltd.github.io/mods',
     email: 'noreply@silverstripeltd.github.io'
   };
