@@ -45,6 +45,7 @@ class ModuleFetcher {
     this.requestCount = 0;
     this.lastRequestTime = 0;
     this.notFoundCache = new Set(); // Cache 404 responses to avoid duplicate calls
+    this._loadedCacheSize = 0; // Tracks loaded cache size for shrinkage protection
   }
 
   /**
@@ -93,7 +94,9 @@ class ModuleFetcher {
    * @returns {number} TTL in days
    */
   getCacheTTLDays(activityStartYear) {
-    const age = new Date().getFullYear() - (activityStartYear || new Date().getFullYear());
+    const currentYear = new Date().getFullYear();
+    // Null activityStart defaults to current year (age 0) → shortest TTL
+    const age = currentYear - (activityStartYear || currentYear);
     if (age <= 1) return 2;
     if (age <= 3) return 7;
     return 21;
@@ -529,13 +532,13 @@ class ModuleFetcher {
         }
 
         console.log(`   Pass ${pass}: Fetching ${pending.length} modules...`);
-        for (const [mod, { url }] of pending) {
+        for (const [mod, { url, repoKey }] of pending) {
           try {
             const response = await this.rateLimitedFetch(url);
             if (response.ok && response.status !== 202) {
               const data = await response.json();
               if (Array.isArray(data)) {
-                warmResults.set(mod, data);
+                warmResults.set(mod, { data, repoKey });
               }
             }
           } catch (error) {
@@ -553,7 +556,7 @@ class ModuleFetcher {
       }
 
       // Apply fresh results to modules and update cache
-      for (const [mod, data] of warmResults) {
+      for (const [mod, { data, repoKey }] of warmResults) {
         if (data.length === 0) continue;
 
         const weeks = data.map(entry => entry[1] + Math.abs(entry[2]));
@@ -562,7 +565,6 @@ class ModuleFetcher {
         mod.activity = this.downsample(weeks);
 
         // Update cache with fresh data
-        const { repoKey } = urlMap.get(mod);
         cache[repoKey] = {
           activity: mod.activity,
           activityStart: mod.activityStart,
