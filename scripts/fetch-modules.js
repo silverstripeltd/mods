@@ -7,7 +7,7 @@
  */
 
 // filepath: scripts/fetch-modules.js
-import { writeFileSync, mkdirSync } from 'fs';
+import { writeFileSync, mkdirSync, readFileSync, existsSync } from 'fs';
 import { dirname } from 'path';
 
 // Configuration constants
@@ -45,6 +45,70 @@ class ModuleFetcher {
     this.requestCount = 0;
     this.lastRequestTime = 0;
     this.notFoundCache = new Set(); // Cache 404 responses to avoid duplicate calls
+  }
+
+  /**
+   * Load the activity cache from disk.
+   * Returns the cache object and records its size for shrinkage protection.
+   * @returns {Object} Cache object keyed by repo full_name (owner/repo)
+   */
+  loadActivityCache() {
+    const cachePath = 'data/activity-cache.json';
+    try {
+      if (existsSync(cachePath)) {
+        const data = JSON.parse(readFileSync(cachePath, 'utf-8'));
+        this._loadedCacheSize = Object.keys(data).length;
+        console.log(`📦 Loaded activity cache with ${this._loadedCacheSize} entries`);
+        return data;
+      }
+    } catch (error) {
+      console.warn('⚠️  Failed to load activity cache:', error.message);
+    }
+    this._loadedCacheSize = 0;
+    return {};
+  }
+
+  /**
+   * Save the activity cache to disk.
+   * Refuses to write if the cache has fewer entries than what was loaded,
+   * protecting against data loss from failed fetches or corrupt loads.
+   * @param {Object} cache - Cache object to persist
+   */
+  saveActivityCache(cache) {
+    const newSize = Object.keys(cache).length;
+    if (newSize < this._loadedCacheSize) {
+      console.warn(`⚠️  Cache shrinkage detected (${this._loadedCacheSize} → ${newSize}), not saving to protect existing data`);
+      return;
+    }
+    mkdirSync('data', { recursive: true });
+    writeFileSync('data/activity-cache.json', JSON.stringify(cache));
+    console.log(`📦 Saved activity cache with ${newSize} entries`);
+  }
+
+  /**
+   * Get cache TTL in days based on repo age.
+   * Older repos have longer TTLs since their activity pattern rarely changes.
+   * Uses activityStart (first code_frequency data point year) as a proxy for repo age.
+   * @param {number|null} activityStartYear - Year of first activity data point
+   * @returns {number} TTL in days
+   */
+  getCacheTTLDays(activityStartYear) {
+    const age = new Date().getFullYear() - (activityStartYear || new Date().getFullYear());
+    if (age <= 1) return 2;
+    if (age <= 3) return 7;
+    return 21;
+  }
+
+  /**
+   * Check if a cache entry is still valid based on its age and repo activity start year
+   * @param {Object} entry - Cache entry with fetchedAt, activity, and activityStart
+   * @returns {boolean} True if the cache entry is fresh enough to use
+   */
+  isCacheValid(entry) {
+    if (!entry || !entry.fetchedAt || !entry.activity || entry.activity.length === 0) return false;
+    const ageMs = Date.now() - new Date(entry.fetchedAt).getTime();
+    const ttlMs = this.getCacheTTLDays(entry.activityStart) * 24 * 60 * 60 * 1000;
+    return ageMs < ttlMs;
   }
 
   /**
