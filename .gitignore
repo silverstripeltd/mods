@@ -10,6 +10,7 @@ build/
 
 # Generated data files
 data/modules.json
+data/activity-cache.json
 
 # Environment variables
 .env
