@@ -51,6 +51,17 @@ jobs:
           echo "Installing build dependencies"
           npm ci
 
+      # actions/cache saves automatically at job end when the primary key is a miss.
+      # Since key uses run_id (always unique), it always saves the updated cache.
+      # restore-keys prefix match finds the most recent previous cache.
+      - name: Restore activity cache
+        uses: actions/cache@v4
+        with:
+          path: data/activity-cache.json
+          key: activity-cache-${{ github.run_id }}
+          restore-keys: |
+            activity-cache-
+
       - name: Prime GitHub stats cache (round 1)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
