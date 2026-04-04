@@ -62,20 +62,12 @@ jobs:
           restore-keys: |
             activity-cache-
 
-      - name: Prime GitHub stats cache (round 1)
+      - name: Prime GitHub stats cache
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: node scripts/prime-stats-cache.js
 
-      - name: Wait for first round
-        run: sleep 30
-
-      - name: Prime GitHub stats cache (round 2)
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: node scripts/prime-stats-cache.js
-
-      - name: Wait for second round
+      - name: Wait for stats computation
         run: sleep 30
 
       - name: Build site
