@@ -475,82 +475,109 @@ class ModuleFetcher {
   }
 
   /**
-   * Fetch lifetime code frequency for all modules using a two-pass approach.
-   * Uses /stats/code_frequency which returns weekly additions/deletions for the
-   * entire repo lifetime. Pass 1 warms GitHub's cache, pass 2 collects results.
+   * Fetch lifetime code frequency for all modules, using a persistent cache.
+   * Repos with valid cached activity data are skipped entirely.
+   * Uses /stats/code_frequency which returns weekly additions/deletions.
    * @param {Array} modules - Array of module objects with url property
    * @returns {Promise<void>} Mutates each module's activity and activityStart properties
    */
   async fetchActivityBulk(modules) {
-    // Extract GitHub owner/repo from each module's URL
     const githubModules = modules.filter(m => m.url && m.url.includes('github.com'));
     if (githubModules.length === 0) return;
 
-    console.log(`\n📊 Fetching lifetime activity for ${githubModules.length} modules (two-pass)...`);
+    // Load persistent activity cache
+    const cache = this.loadActivityCache();
 
-    // Build URL map: module → stats URL
+    // Determine which modules need fresh data vs can use cache
     const urlMap = new Map();
+    let cacheHits = 0;
+
     for (const mod of githubModules) {
       const match = mod.url.match(/github\.com\/([^\/]+\/[^\/]+)/);
-      if (match) {
-        urlMap.set(mod, `${GITHUB_API_BASE}/repos/${match[1]}/stats/code_frequency`);
+      if (!match) continue;
+
+      const repoKey = match[1];
+      const cached = cache[repoKey];
+
+      if (this.isCacheValid(cached)) {
+        // Apply cached data directly — no API call needed
+        mod.activity = cached.activity;
+        mod.activityStart = cached.activityStart;
+        cacheHits++;
+      } else {
+        urlMap.set(mod, { url: `${GITHUB_API_BASE}/repos/${repoKey}/stats/code_frequency`, repoKey });
       }
     }
 
-    const MAX_PASSES = 4;
-    const PASS_DELAY = 10000; // 10s between passes
-    const TARGET_RATIO = 0.85; // stop once 85% collected
+    console.log(`\n📊 Activity: ${cacheHits} from cache, ${urlMap.size} to fetch from API`);
 
-    const warmResults = new Map();
+    // Fetch only the modules that aren't cached
+    if (urlMap.size > 0) {
+      const MAX_PASSES = 4;
+      const PASS_DELAY = 10000;
+      const TARGET_RATIO = 0.85;
 
-    for (let pass = 1; pass <= MAX_PASSES; pass++) {
-      const pending = [...urlMap.entries()].filter(([mod]) => !warmResults.has(mod));
-      if (pending.length === 0) break;
+      const warmResults = new Map();
 
-      if (pass > 1) {
-        console.log(`   Waiting ${PASS_DELAY / 1000}s for GitHub to compute ${pending.length} remaining...`);
-        await this.sleep(PASS_DELAY);
-      }
+      for (let pass = 1; pass <= MAX_PASSES; pass++) {
+        const pending = [...urlMap.entries()].filter(([mod]) => !warmResults.has(mod));
+        if (pending.length === 0) break;
 
-      console.log(`   Pass ${pass}: Fetching ${pending.length} modules...`);
-      for (const [mod, url] of pending) {
-        try {
-          const response = await this.rateLimitedFetch(url);
-          if (response.ok && response.status !== 202) {
-            const data = await response.json();
-            if (Array.isArray(data)) {
-              warmResults.set(mod, data);
+        if (pass > 1) {
+          console.log(`   Waiting ${PASS_DELAY / 1000}s for GitHub to compute ${pending.length} remaining...`);
+          await this.sleep(PASS_DELAY);
+        }
+
+        console.log(`   Pass ${pass}: Fetching ${pending.length} modules...`);
+        for (const [mod, { url }] of pending) {
+          try {
+            const response = await this.rateLimitedFetch(url);
+            if (response.ok && response.status !== 202) {
+              const data = await response.json();
+              if (Array.isArray(data)) {
+                warmResults.set(mod, data);
+              }
             }
+          } catch (error) {
+            // Will retry on next pass
           }
-        } catch (error) {
-          // Will retry on next pass
+        }
+
+        const ratio = warmResults.size / urlMap.size;
+        console.log(`   ${warmResults.size}/${urlMap.size} collected (${Math.round(ratio * 100)}%)`);
+
+        if (ratio >= TARGET_RATIO) {
+          console.log(`   Hit ${Math.round(TARGET_RATIO * 100)}% target, stopping`);
+          break;
         }
       }
 
-      const ratio = warmResults.size / urlMap.size;
-      console.log(`   ${warmResults.size}/${urlMap.size} collected (${Math.round(ratio * 100)}%)`);
+      // Apply fresh results to modules and update cache
+      for (const [mod, data] of warmResults) {
+        if (data.length === 0) continue;
 
-      if (ratio >= TARGET_RATIO) {
-        console.log(`   Hit ${Math.round(TARGET_RATIO * 100)}% target, stopping`);
-        break;
+        const weeks = data.map(entry => entry[1] + Math.abs(entry[2]));
+        const startTimestamp = data[0][0];
+        mod.activityStart = new Date(startTimestamp * 1000).getFullYear();
+        mod.activity = this.downsample(weeks);
+
+        // Update cache with fresh data
+        const { repoKey } = urlMap.get(mod);
+        cache[repoKey] = {
+          activity: mod.activity,
+          activityStart: mod.activityStart,
+          fetchedAt: new Date().toISOString()
+        };
       }
     }
 
-    // Apply results to modules
-    // code_frequency returns [[timestamp, additions, deletions], ...]
-    for (const [mod, data] of warmResults) {
-      if (data.length === 0) continue;
+    // Save updated cache (includes both existing and newly fetched entries)
+    // Shrinkage protection prevents overwriting good data on a bad run
+    this.saveActivityCache(cache);
 
-      // Total churn per week (additions + |deletions|)
-      const weeks = data.map(entry => entry[1] + Math.abs(entry[2]));
-
-      // Extract start year from the first entry's timestamp
-      const startTimestamp = data[0][0];
-      mod.activityStart = new Date(startTimestamp * 1000).getFullYear();
-
-      // Downsample to ~52 points for a readable sparkline
-      mod.activity = this.downsample(weeks);
-    }
+    // Report final coverage
+    const withActivity = githubModules.filter(m => m.activity && m.activity.length > 0).length;
+    console.log(`📊 Activity coverage: ${withActivity}/${githubModules.length} modules (${Math.round(withActivity / githubModules.length * 100)}%)`);
   }
 
   /**
