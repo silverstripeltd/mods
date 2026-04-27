@@ -18,6 +18,14 @@ const PACKAGIST_API_BASE = 'https://packagist.org';
 const WINDOW_DAYS = 7;
 const MAX_CANDIDATES = 100;
 
+// Packages that must only appear when owned by the 'silverstripe' org on GitHub.
+// Repos cloned from these and left with the original composer name are excluded.
+const SILVERSTRIPE_ORG_ONLY_PACKAGES = new Set([
+  'silverstripe/installer',
+  'silverstripe/recipe-core',
+  'silverstripe/recipe-cms',
+]);
+
 /**
  * ModuleFetcher Class
  *
@@ -346,12 +354,20 @@ class ModuleFetcher {
       // Check if it's a Silverstripe module by examining composer.json
       const type = composer.type || '';
       const keywords = composer.keywords || [];
-      const name = composer.name || '';
+      const name = (composer.name || '').toLowerCase();
+
+      if (SILVERSTRIPE_ORG_ONLY_PACKAGES.has(name)) {
+        const owner = (repo.full_name || '').split('/')[0];
+        if (owner !== 'silverstripe') {
+          console.log(`⛔ Skipping ${repo.full_name}: composer name "${name}" is reserved for the silverstripe org`);
+          return false;
+        }
+      }
 
       return (
         type.includes('silverstripe-') ||
         keywords.some(k => k.toLowerCase().includes('silverstripe')) ||
-        name.toLowerCase().includes('silverstripe')
+        name.includes('silverstripe')
       );
     } catch (error) {
       // Fallback: check if repo name suggests it's a Silverstripe module
