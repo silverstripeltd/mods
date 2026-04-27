@@ -9,6 +9,7 @@
 // filepath: scripts/fetch-modules.js
 import { writeFileSync, mkdirSync, readFileSync, existsSync } from 'fs';
 import { dirname } from 'path';
+import { fileURLToPath } from 'url';
 
 // Configuration constants
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
@@ -721,5 +722,7 @@ async function main() {
   }
 }
 
-// Execute the main function
-main();
+// Execute the main function only when run directly (not when imported)
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  main();
+}
