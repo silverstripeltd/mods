@@ -357,7 +357,7 @@ class ModuleFetcher {
       const name = (composer.name || '').toLowerCase();
 
       if (SILVERSTRIPE_ORG_ONLY_PACKAGES.has(name)) {
-        const owner = (repo.full_name || '').split('/')[0];
+        const owner = (repo.full_name || '').split('/')[0].toLowerCase();
         if (owner !== 'silverstripe') {
           console.log(`⛔ Skipping ${repo.full_name}: composer name "${name}" is reserved for the silverstripe org`);
           return false;
@@ -370,7 +370,10 @@ class ModuleFetcher {
         name.includes('silverstripe')
       );
     } catch (error) {
-      // Fallback: check if repo name suggests it's a Silverstripe module
+      // Fallback when composer.json is unreadable: the deny-list cannot be
+      // consulted without a parsed package name, so we rely on repo name/description.
+      // Clone repos that don't include "silverstripe" in their GitHub name or
+      // description will still be excluded by this check.
       return repo.full_name.toLowerCase().includes('silverstripe') ||
              (repo.description && repo.description.toLowerCase().includes('silverstripe'));
     }
