@@ -738,6 +738,8 @@ async function main() {
   }
 }
 
+export { ModuleFetcher };
+
 // Execute the main function only when run directly (not when imported)
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   main();
