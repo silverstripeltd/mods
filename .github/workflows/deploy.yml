@@ -70,27 +70,37 @@ jobs:
       - name: Wait for stats computation
         run: sleep 30
 
-      - name: Build site
+      - name: Fetch modules
+        id: fetch
+        continue-on-error: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/fetch-modules.js
+
+      - name: Build site
+        if: steps.fetch.outcome == 'success'
         run: |
           echo "Building site for deployment"
-          npm run build
+          node scripts/build.js
 
       - name: Verify build output
+        if: steps.fetch.outcome == 'success'
         run: |
           echo "Verifying build output..."
           ls -la dist/
           echo "✅ Build verification complete"
 
       - name: Setup GitHub Pages
+        if: steps.fetch.outcome == 'success'
         uses: actions/configure-pages@v4
 
       - name: Upload Pages artifact
+        if: steps.fetch.outcome == 'success'
         uses: actions/upload-pages-artifact@v3
         with:
           path: './dist'
 
       - name: Deploy to GitHub Pages
+        if: steps.fetch.outcome == 'success'
         id: deployment
         uses: actions/deploy-pages@v4

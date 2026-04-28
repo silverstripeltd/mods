@@ -731,6 +731,11 @@ async function main() {
     // Ensure the data directory exists for output
     mkdirSync('data', { recursive: true });
 
+    if (modules.length === 0) {
+      console.warn('\n⚠️  Zero modules found — API may be unavailable or rate-limited. Skipping publish.');
+      process.exit(2);
+    }
+
     // Write the processed modules data to JSON file
     writeFileSync('data/modules.json', JSON.stringify(modules, null, 2));
     console.log(`\n✅ Successfully wrote ${modules.length} modules to data/modules.json`);
